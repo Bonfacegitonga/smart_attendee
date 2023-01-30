@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1021069922999",
+    "project_id": "smart-attendee-51194",
+    "storage_bucket": "smart-attendee-51194.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1021069922999:android:a5e913b5a598ddcb623332",
+        "android_client_info": {
+          "package_name": "com.example.smart_attendee"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1021069922999-keebcohv7g5jvar5hi3afki01s146fdm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBg_Asne0ZKMgDqO8TZtp6Ph8o26yYysNs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1021069922999-keebcohv7g5jvar5hi3afki01s146fdm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
