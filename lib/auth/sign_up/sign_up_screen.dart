@@ -4,10 +4,13 @@ import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:smart_attendee/auth/sign_up/admin.dart';
+import 'package:smart_attendee/auth/sign_up/student.dart';
 import 'package:smart_attendee/auth/util.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:smart_attendee/model/user.dart';
 import 'package:smart_attendee/student/student_home.dart';
 
 import '../../admin/admin_home.dart';
@@ -68,67 +71,67 @@ class _SignUpPageState extends State<SignUpPage> {
                 key: formKey,
                 child: Column(
                   children: [
-                    // Row(
-                    //   children: [
-                    //     Expanded(
-                    //       child: TextFormField(
-                    //         controller: firstNameController,
-                    //         cursorColor: Colors.black,
-                    //         textInputAction: TextInputAction.next,
-                    //         decoration: InputDecoration(
-                    //           contentPadding: const EdgeInsets.all(10),
-                    //           border: OutlineInputBorder(
-                    //             borderRadius: BorderRadius.circular(10),
-                    //           ),
-                    //           labelText: "First Name",
-                    //         ),
-                    //         autovalidateMode:
-                    //             AutovalidateMode.onUserInteraction,
-                    //         validator: (value) =>
-                    //             value!.isEmpty ? 'Enter your first name' : null,
-                    //       ),
-                    //     ),
-                    //     const SizedBox(
-                    //       width: 10,
-                    //     ),
-                    //     Expanded(
-                    //       child: TextFormField(
-                    //         controller: lastNameController,
-                    //         cursorColor: Colors.black,
-                    //         textInputAction: TextInputAction.next,
-                    //         decoration: InputDecoration(
-                    //           contentPadding: const EdgeInsets.all(10),
-                    //           border: OutlineInputBorder(
-                    //             borderRadius: BorderRadius.circular(10),
-                    //           ),
-                    //           labelText: "Last Name",
-                    //         ),
-                    //         autovalidateMode:
-                    //             AutovalidateMode.onUserInteraction,
-                    //         validator: (value) =>
-                    //             value!.isEmpty ? 'Enter your last name' : null,
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
-                    // const SizedBox(height: 20),
-                    // TextFormField(
-                    //   controller: phoneController,
-                    //   keyboardType: TextInputType.phone,
-                    //   cursorColor: Colors.black,
-                    //   textInputAction: TextInputAction.next,
-                    //   decoration: InputDecoration(
-                    //     contentPadding: const EdgeInsets.all(10),
-                    //     border: OutlineInputBorder(
-                    //       borderRadius: BorderRadius.circular(10),
-                    //     ),
-                    //     labelText: "Phone Number",
-                    //   ),
-                    //   autovalidateMode: AutovalidateMode.onUserInteraction,
-                    //   validator: (value) =>
-                    //       value!.isEmpty ? 'Enter your phone number' : null,
-                    // ),
-                    // const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: firstNameController,
+                            cursorColor: Colors.black,
+                            textInputAction: TextInputAction.next,
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.all(10),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              labelText: "First Name",
+                            ),
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            validator: (value) =>
+                                value!.isEmpty ? 'Enter your first name' : null,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(
+                          child: TextFormField(
+                            controller: lastNameController,
+                            cursorColor: Colors.black,
+                            textInputAction: TextInputAction.next,
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.all(10),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              labelText: "Last Name",
+                            ),
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            validator: (value) =>
+                                value!.isEmpty ? 'Enter your last name' : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: phoneController,
+                      keyboardType: TextInputType.phone,
+                      cursorColor: Colors.black,
+                      textInputAction: TextInputAction.next,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.all(10),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        labelText: "Phone Number",
+                      ),
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (value) =>
+                          value!.isEmpty ? 'Enter your phone number' : null,
+                    ),
+                    const SizedBox(height: 20),
                     TextFormField(
                       controller: emailController,
                       cursorColor: Colors.black,
@@ -216,10 +219,32 @@ class _SignUpPageState extends State<SignUpPage> {
                     const SizedBox(height: 20),
                     ElevatedButton(
                         onPressed: () {
-                          signUp1(emailController.text, passwordController.text,
-                              _selectedRole);
+                          switch (_selectedRole) {
+                            case 'admin':
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AdminSignUP(),
+                                ),
+                              );
+                              break;
+                            case 'user':
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AdminSignUpPage(
+                                      fName: firstNameController.text,
+                                      lName: lastNameController.text,
+                                      phoneNumber: phoneController.text,
+                                      email: emailController.text,
+                                      password: passwordController.text,
+                                      role: _selectedRole),
+                                ),
+                              );
+                              break;
+                          }
                         },
-                        child: const Text("Sign Up")),
+                        child: const Text("Next")),
                     const SizedBox(height: 20),
                     RichText(
                         text: TextSpan(
@@ -244,20 +269,82 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  void signUp1(String email, String password, String rool) async {
-    if (formKey.currentState!.validate()) {
+  void signUp1(String email, String password, String rool, String fName,
+      String lName, String phoneNumber) async {
+    final isValid = formKey.currentState!.validate();
+    if (!isValid) return;
+
+    try {
       await _auth
           .createUserWithEmailAndPassword(email: email, password: password)
-          .then((value) => {postDetailsToFirestore(email, rool)})
+          .then((value) =>
+              {postDetailsToFirestore(email, rool, fName, lName, phoneNumber)})
           .catchError((e) {});
+    } on FirebaseAuthException catch (e) {
+      print(e);
     }
   }
 
-  postDetailsToFirestore(String email, String rool) async {
+  postDetailsToFirestore(String email, String rool, String firstName,
+      String lastName, String phoneNumber) async {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     var user = _auth.currentUser;
     CollectionReference ref = firebaseFirestore.collection('users');
-    ref.doc(user!.uid).set({'email': emailController.text, 'rool': rool});
+    ref.doc(user!.uid).set({
+      'email': emailController.text,
+      'rool': rool,
+      'first_name': firstName,
+      'last_name': lastName,
+      'phone': phoneNumber,
+    });
+  }
+
+  route1() {
+    User? user = FirebaseAuth.instance.currentUser;
+    var kk = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        if (documentSnapshot.get('rool') == "admin") {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AdminHomePage(),
+            ),
+          );
+        } else if (documentSnapshot.get('rool') == "admin") {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const StudentHomePage(),
+            ),
+          );
+        }
+      } else {
+        print('Document does not exist on the database');
+      }
+    });
+  }
+
+  void signIn(String email, String password) async {
+    if (formKey.currentState!.validate()) {
+      try {
+        UserCredential userCredential =
+            await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        route1();
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found') {
+          print('No user found for that email.');
+        } else if (e.code == 'wrong-password') {
+          print('Wrong password provided for that user.');
+        }
+      }
+    }
   }
 
   // Future signUp() async {
