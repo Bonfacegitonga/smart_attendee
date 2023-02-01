@@ -4,8 +4,8 @@ import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:smart_attendee/auth/sign_up/admin.dart';
-import 'package:smart_attendee/auth/sign_up/student.dart';
+import 'package:smart_attendee/auth/sign_up/student_signup.dart';
+import 'package:smart_attendee/auth/sign_up/Admin_sign_up.dart';
 import 'package:smart_attendee/auth/util.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -33,8 +33,8 @@ class _SignUpPageState extends State<SignUpPage> {
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final phoneController = TextEditingController();
-  final List<String> _roles = ['admin', 'user'];
-  String _selectedRole = 'admin';
+  final List<String> _roles = ['Student', 'Lecturer'];
+  String _selectedRole = 'Student';
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Utils err = Utils();
@@ -220,15 +220,21 @@ class _SignUpPageState extends State<SignUpPage> {
                     ElevatedButton(
                         onPressed: () {
                           switch (_selectedRole) {
-                            case 'admin':
+                            case 'Student':
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const AdminSignUP(),
+                                  builder: (context) => StudentSignUP(
+                                      fName: firstNameController.text,
+                                      lName: lastNameController.text,
+                                      phoneNumber: phoneController.text,
+                                      email: emailController.text,
+                                      password: passwordController.text,
+                                      role: _selectedRole),
                                 ),
                               );
                               break;
-                            case 'user':
+                            case 'Lecturer':
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(

@@ -55,7 +55,7 @@ class MainPage extends StatelessWidget {
               child: Text("Something went wrong!"),
             );
           } else if (snapshot.hasData) {
-            return const StudentHomePage();
+            return const VerifyEmail();
           } else {
             return const AuthPage();
           }
