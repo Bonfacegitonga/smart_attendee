@@ -4,7 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_attendee/auth/auth_page.dart';
 import 'package:smart_attendee/auth/util.dart';
-import 'package:smart_attendee/student/student_home.dart';
+import 'package:smart_attendee/screen/student/student_home.dart';
 
 import 'auth/sign_in/sign_in_screen.dart';
 import 'auth/verifyEmail/verify_email.dart';

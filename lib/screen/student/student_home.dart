@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:smart_attendee/admin/admin_home.dart';
+
+import '../admin/admin_home.dart';
 
 class StudentHomePage extends StatefulWidget {
   const StudentHomePage({super.key});

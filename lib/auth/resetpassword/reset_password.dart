@@ -2,8 +2,6 @@ import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../component/custom_surffix.dart';
-
 class ResetPassword extends StatefulWidget {
   const ResetPassword({super.key});
 
@@ -49,8 +47,6 @@ class _ResetPasswordState extends State<ResetPassword> {
                       decoration: const InputDecoration(
                         contentPadding: EdgeInsets.only(top: 5),
                         labelText: "Email",
-                        suffixIcon:
-                            CustomSuffixIcon(iconPath: "assets/icons/Mail.svg"),
                       ),
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       validator: (email) =>

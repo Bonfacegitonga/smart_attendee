@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:smart_attendee/student/student_home.dart';
+import 'package:smart_attendee/screen/student/student_home.dart';
 
 class VerifyEmail extends StatefulWidget {
   const VerifyEmail({super.key});

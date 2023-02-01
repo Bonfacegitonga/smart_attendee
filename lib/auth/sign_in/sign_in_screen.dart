@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:smart_attendee/auth/resetpassword/reset_password.dart';
 import 'package:smart_attendee/auth/util.dart';
 
-import '../../component/custom_surffix.dart';
 import '../../constant/constant.dart';
 import '../../main.dart';
 
@@ -57,8 +56,6 @@ class _SignInScreenState extends State<SignInScreen> {
                       decoration: const InputDecoration(
                         contentPadding: EdgeInsets.only(top: 5),
                         labelText: "Email",
-                        suffixIcon:
-                            CustomSuffixIcon(iconPath: "assets/icons/Mail.svg"),
                       ),
                     ),
                     const SizedBox(height: 30),
@@ -70,8 +67,6 @@ class _SignInScreenState extends State<SignInScreen> {
                       decoration: const InputDecoration(
                         contentPadding: EdgeInsets.only(top: 5),
                         labelText: "Password",
-                        suffixIcon:
-                            CustomSuffixIcon(iconPath: "assets/icons/Lock.svg"),
                       ),
                     ),
                     const SizedBox(height: 20),
