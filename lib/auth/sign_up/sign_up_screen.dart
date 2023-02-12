@@ -14,8 +14,10 @@ import '../../constant/constant.dart';
 import '../../screen/admin/admin_home.dart';
 
 class SignUpPage extends StatefulWidget {
-  final Function() onClickedSignIn;
-  const SignUpPage({super.key, required this.onClickedSignIn});
+  //final Function() onClickedSignIn;
+  const SignUpPage({
+    super.key,
+  });
 
   @override
   State<SignUpPage> createState() => _SignUpPageState();
@@ -45,8 +47,8 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
+    return Scaffold(
+      body: Padding(
         padding: const EdgeInsets.only(left: 50, right: 50, top: 40),
         child: SingleChildScrollView(
           child: Column(
@@ -211,7 +213,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         "Forgot password",
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 8),
                     ElevatedButton(
                         onPressed: () {
                           switch (_selectedRole) {
@@ -246,17 +248,17 @@ class _SignUpPageState extends State<SignUpPage> {
                           }
                         },
                         child: const Text("Next")),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 8),
                     RichText(
-                        text: TextSpan(
-                            style: const TextStyle(color: Colors.black),
+                        text: const TextSpan(
+                            style: TextStyle(color: Colors.black),
                             text: 'Already have account? ',
                             children: [
                           TextSpan(
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = widget.onClickedSignIn,
+                              // recognizer: TapGestureRecognizer()
+                              //   ..onTap = widget.onClickedSignIn,
                               text: 'Login',
-                              style: const TextStyle(
+                              style: TextStyle(
                                   decoration: TextDecoration.underline,
                                   color: Colors.blue))
                         ]))

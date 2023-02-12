@@ -181,7 +181,7 @@ class _AdminSignUpPageState extends State<AdminSignUpPage> {
       String department) async {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     var user = _auth.currentUser;
-    CollectionReference ref = firebaseFirestore.collection('Admins');
+    CollectionReference ref = firebaseFirestore.collection('Users');
     ref.doc(user!.uid).set({
       'email': email,
       'role': role,
@@ -190,7 +190,8 @@ class _AdminSignUpPageState extends State<AdminSignUpPage> {
       'phone': phoneNumber,
       'Id': id,
       'school': school,
-      'department': department
+      'department': department,
+      'classes': []
     });
   }
 }

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../auth/sign_in/login.dart';
 import '../admin/admin_home.dart';
 
 class StudentHomePage extends StatefulWidget {
@@ -12,54 +13,63 @@ class StudentHomePage extends StatefulWidget {
 }
 
 class _StudentHomePageState extends State<StudentHomePage> {
-  bool _isUserLecturer = false;
-
   @override
   void initState() {
-    whichUser();
     super.initState();
   }
 
-  Future whichUser() async {
-    User user = FirebaseAuth.instance.currentUser!;
-    DocumentSnapshot student = await FirebaseFirestore.instance
-        .collection('Admins')
-        .doc(user.uid)
-        .get();
-    if (student.exists) {
-      setState(() {
-        _isUserLecturer = true;
-      });
-    }
-  }
+  // Future whichUser() async {
+  //   User user = FirebaseAuth.instance.currentUser!;
+  //   DocumentSnapshot student = await FirebaseFirestore.instance
+  //       .collection('Admins')
+  //       .doc(user.uid)
+  //       .get();
+  //   if (student.exists) {
+  //     setState(() {
+  //       _isUserLecturer = true;
+  //     });
+  //   }
+  // }
 
   @override
-  Widget build(BuildContext context) => _isUserLecturer
-      ? const AdminHomePage()
-      : Scaffold(
-          body: Column(
-            children: [
-              const Center(child: Text("student")),
-              const SizedBox(
-                height: 30,
-              ),
-              ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(50)),
-                  onPressed: signOut,
-                  icon: const Icon(
-                    Icons.arrow_back,
-                    size: 32,
-                  ),
-                  label: const Text(
-                    'Sign out',
-                    style: TextStyle(fontSize: 24),
-                  ))
-            ],
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: [
+          const Center(child: Text("student")),
+          const SizedBox(
+            height: 30,
           ),
-        );
+          ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(50)),
+              onPressed: () {
+                logout(context);
+              },
+              icon: const Icon(
+                Icons.arrow_back,
+                size: 32,
+              ),
+              label: const Text(
+                'Sign out',
+                style: TextStyle(fontSize: 24),
+              ))
+        ],
+      ),
+    );
+  }
 
-  Future signOut() async {
-    return await FirebaseAuth.instance.signOut();
+  Future<void> logout(BuildContext context) async {
+    const CircularProgressIndicator();
+    await FirebaseAuth.instance.signOut();
+    login();
+  }
+
+  login() {
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const Login(),
+        ));
   }
 }

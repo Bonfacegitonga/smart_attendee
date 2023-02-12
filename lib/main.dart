@@ -1,12 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:smart_attendee/auth/auth_page.dart';
-import 'package:smart_attendee/auth/util.dart';
-import 'package:smart_attendee/screen/student/student_home.dart';
 
-import 'auth/sign_in/sign_in_screen.dart';
+import 'package:smart_attendee/auth/util.dart';
+
+import 'auth/sign_in/login.dart';
 import 'auth/verifyEmail/verify_email.dart';
 import 'firebase_options.dart';
 
@@ -57,7 +55,7 @@ class MainPage extends StatelessWidget {
           } else if (snapshot.hasData) {
             return const VerifyEmail();
           } else {
-            return const AuthPage();
+            return const Login();
           }
         },
       ),

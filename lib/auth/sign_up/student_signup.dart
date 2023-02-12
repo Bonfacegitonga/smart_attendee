@@ -259,7 +259,7 @@ class _StudentSignUPState extends State<StudentSignUP> {
       String department) async {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     var user = _auth.currentUser;
-    CollectionReference ref = firebaseFirestore.collection('Students');
+    CollectionReference ref = firebaseFirestore.collection('Users');
     ref.doc(user!.uid).set({
       'email': email,
       'role': role,

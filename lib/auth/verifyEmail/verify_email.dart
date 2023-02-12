@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:smart_attendee/screen/student/student_home.dart';
+
+import '../../screen/check_role.dart';
+import '../sign_in/login.dart';
 
 class VerifyEmail extends StatefulWidget {
   const VerifyEmail({super.key});
@@ -65,7 +67,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
 
   @override
   Widget build(BuildContext context) => isEmailVerified
-      ? const StudentHomePage()
+      ? RoleScreen()
       : Scaffold(
           appBar: AppBar(
             title: const Text('Verify email'),

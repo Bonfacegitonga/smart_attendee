@@ -1,15 +1,17 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:smart_attendee/auth/auth_service.dart';
 import 'package:smart_attendee/auth/resetpassword/reset_password.dart';
+import 'package:smart_attendee/auth/sign_up/sign_up_screen.dart';
 import 'package:smart_attendee/auth/util.dart';
-
-import '../../constant/constant.dart';
 import '../../main.dart';
 
 class SignInScreen extends StatefulWidget {
-  final VoidCallback onClickedSignUp;
-  const SignInScreen({super.key, required this.onClickedSignUp});
+  // final VoidCallback onClickedSignUp;
+  const SignInScreen({
+    super.key,
+  });
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
@@ -18,7 +20,9 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  AuthService authService = AuthService();
   Utils err = Utils();
+  bool _obscureText = true;
 
   @override
   void dispose() {
@@ -38,7 +42,9 @@ class _SignInScreenState extends State<SignInScreen> {
               const SizedBox(height: 15),
               const Text(
                 "Welcome Back",
-                style: headingStyle,
+                style: TextStyle(
+                  fontSize: 26,
+                ),
                 textAlign: TextAlign.center,
               ),
               const Text(
@@ -49,53 +55,92 @@ class _SignInScreenState extends State<SignInScreen> {
               Form(
                 child: Column(
                   children: [
-                    TextField(
+                    TextFormField(
                       controller: emailController,
                       cursorColor: Colors.black,
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.only(top: 5),
-                        labelText: "Email",
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    TextField(
-                      controller: passwordController,
-                      cursorColor: Colors.black,
-                      textInputAction: TextInputAction.done,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.only(top: 5),
-                        labelText: "Password",
-                      ),
+                      decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.all(10),
+                          labelText: "Email",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          prefixIcon: const Icon(Icons.email)),
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (email) =>
+                          email != null && !EmailValidator.validate(email)
+                              ? 'Enter your email'
+                              : null,
                     ),
                     const SizedBox(height: 20),
+                    Stack(
+                      children: [
+                        TextFormField(
+                          controller: passwordController,
+                          cursorColor: Colors.black,
+                          textInputAction: TextInputAction.done,
+                          obscureText: _obscureText,
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.all(10),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            labelText: "Password",
+                          ),
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) =>
+                              value != null && value.length < 6
+                                  ? 'Enter minimum of 6 character'
+                                  : null,
+                        ),
+                        Positioned(
+                          right: 0,
+                          child: IconButton(
+                            icon: _obscureText
+                                ? const Icon(Icons.visibility_off)
+                                : const Icon(Icons.visibility),
+                            onPressed: () {
+                              setState(() {
+                                _obscureText = !_obscureText;
+                              });
+                            },
+                          ),
+                        )
+                      ],
+                    ),
+                    const SizedBox(height: 8),
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (context) => const ResetPassword()));
                       },
                       child: const Text(
-                        "Forgot password",
+                        "Forgot password? ",
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 8),
                     ElevatedButton(
                         onPressed: signIn, child: const Text("login")),
-                    const SizedBox(height: 20),
-                    RichText(
-                        text: TextSpan(
-                            style: const TextStyle(color: Colors.black),
-                            text: 'No account?',
-                            children: [
-                          TextSpan(
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = widget.onClickedSignUp,
-                              text: 'Sign up',
-                              style: const TextStyle(
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "No account? ",
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => const SignUpPage()));
+                          },
+                          child: const Text('Sign Up',
+                              style: TextStyle(
                                   decoration: TextDecoration.underline,
-                                  color: Colors.blue))
-                        ]))
+                                  color: Colors.blue)),
+                        )
+                      ],
+                    )
                   ],
                 ),
               ),
