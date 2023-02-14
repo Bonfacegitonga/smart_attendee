@@ -1,5 +1,29 @@
 // import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class MyUnit {
+  String id;
+  Map<String, dynamic> data;
+
+  MyUnit({required this.id, required this.data});
+
+  factory MyUnit.fromFirestore(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    return MyUnit(id: doc.id, data: data);
+  }
+}
+
+Future<List<MyUnit>> getMyUnits() async {
+  QuerySnapshot<Map<String, dynamic>> querySnapshot =
+      await FirebaseFirestore.instance.collection('Users').get();
+  List<MyUnit> myUnits =
+      querySnapshot.docs.map((doc) => MyUnit.fromFirestore(doc)).toList();
+  return myUnits;
+}
+
+
+
 // class Class {
 //   final String id;
 //   final String lecturerId;
@@ -10,7 +34,7 @@
 //   factory Class.fromFirestore(DocumentSnapshot doc) {
 //     Map data = doc.data as Map;
 
-//     List<Unit> units = (data['units'] as List).map((unit) => Unit.fromMap(unit)).toList();
+//     List<Unit> units = (data['units'] as List).map((unit) => units.fromMap(unit)).toList();
 
 //     return Class(
 //       id: doc.documentID,
@@ -60,3 +84,4 @@
 //         .toList());
 //   }
 // }
+

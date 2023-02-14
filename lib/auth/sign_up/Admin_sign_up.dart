@@ -191,7 +191,7 @@ class _AdminSignUpPageState extends State<AdminSignUpPage> {
       'Id': id,
       'school': school,
       'department': department,
-      'classes': []
+      'classes': [{}]
     });
   }
 }

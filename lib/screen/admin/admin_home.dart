@@ -1,10 +1,13 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_attendee/auth/auth_service.dart';
 
 import '../../auth/sign_in/login.dart';
-import '../../component/selection_form.dart';
+import '../../component/container.dart';
+import '../../model/user.dart';
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key});
@@ -17,10 +20,13 @@ class _AdminHomePageState extends State<AdminHomePage> {
   AuthService authService = AuthService();
   User user = FirebaseAuth.instance.currentUser!;
   final TextEditingController _unitName = TextEditingController();
+  final TextEditingController _unitCode = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  List<int> _selectedItems = [];
-  final List<int> _selectedIndexes = [];
-  final year = ['1st', '2rd', '3rd', '4th'];
+  var unit = <String, dynamic>{};
+
+  //List<int> _selectedItems = [];
+  //final List<int> _selectedIndexes = [];
+  //final year = ['1st', '2rd', '3rd', '4th'];
 
   // @override
   // void initState() {
@@ -33,55 +39,66 @@ class _AdminHomePageState extends State<AdminHomePage> {
     final screenWidth = MediaQuery.of(context).size.width;
     int crossAxisCount = (screenWidth >= 600) ? 4 : 2;
     return Scaffold(
-        body: Column(
-      children: [
-        StreamBuilder(
-            stream: FirebaseFirestore.instance
-                .collection('Users')
-                .doc(user.uid)
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-              List<dynamic> classes = snapshot.data?.get('department');
-              return Expanded(
-                child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount,
-                      mainAxisSpacing: 10.0,
-                      crossAxisSpacing: 10.0,
-                      childAspectRatio: 1.0,
-                    ),
-                    itemCount: classes.length,
-                    itemBuilder: (context, index) => Container(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text(
-                                "card",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20.0),
-                              ),
-                              SizedBox(
-                                height: 8.0,
-                              ),
-                              Text(
-                                '3rd year',
-                                style: TextStyle(fontSize: 16.0),
-                              ),
-                            ],
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('Classes')
+                      .where('lecture_id', isEqualTo: user.uid)
+                      .snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    //Map<String, String>? data = snapshot.data!.data()?.cast<String, String>();
+                    List<dynamic> classesData =
+                        snapshot.data!.docs.map((DocumentSnapshot document) {
+                      return document.data();
+                    }).toList();
+                    // List<Class> classes = [];
+                    // for (int i = 0; i < classesData.length; i++) {
+                    //   Map<String, dynamic> classData = classesData[i];
+                    //   String course = classData['courseName'];
+                    //   String eCode = classData['courseCode'];
+                    //   //String classLink = classData['']
+                    //   classes.add(Class(courseName: course, courseCode: eCode));
+                    // }
+                    return Expanded(
+                      child: GridView.builder(
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: crossAxisCount,
+                            mainAxisSpacing: 10.0,
+                            crossAxisSpacing: 10.0,
+                            childAspectRatio: 1.0,
                           ),
-                        )),
-              );
-            }),
-        FloatingActionButton(onPressed: createClasses)
-      ],
-    ));
+                          itemCount: classesData.length,
+                          itemBuilder: (context, index) {
+                            Map<String, dynamic> classData = classesData[index];
+                            String name = classData['unit_name'];
+                            return GestureDetector(
+                              onTap: () {},
+                              child: BeautifulContainer(
+                                headline: name,
+                                subtitle: "lets fuck",
+                              ),
+                            );
+                          }),
+                    );
+                  }),
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: createClasses,
+          child: const Icon(Icons.add_card),
+        ));
   }
 
   void createClasses() {
@@ -102,47 +119,54 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    labelText: "Unit Name",
+                    labelText: "Course title",
                   ),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (value) =>
-                      value!.isEmpty ? 'Enter unit name ' : null,
+                      value!.isEmpty ? 'Enter course title' : null,
                 ),
                 const SizedBox(
                   height: 10,
                 ),
-                Multiselect(
-                  dropList: year,
-                  title: 'hey',
-                  onChanged: (selectedItems) {
-                    setState(() {
-                      for (dynamic item in selectedItems) {
-                        _selectedIndexes.add(item as int);
-                      }
-
-                      _selectedItems = List.from(
-                          _selectedIndexes.map((index) => year[index]));
-                    });
-                  },
-                  // submit: ElevatedButton(
-                  //     onPressed: () {}, child: const Text('submit')),
+                TextFormField(
+                  controller: _unitCode,
+                  cursorColor: Colors.black,
+                  textInputAction: TextInputAction.next,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.all(10),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    labelText: "Course code",
+                  ),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) =>
+                      value!.isEmpty ? 'Enter course code' : null,
                 ),
                 const SizedBox(
                   height: 10,
                 ),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     ElevatedButton(
-                        onPressed: () {}, child: const Text('Cancel')),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Cancel')),
                     const SizedBox(
                       width: 8,
                     ),
                     ElevatedButton(
                         onPressed: () {
-                          print('object');
-                          for (var item in _selectedItems) {
-                            print(item);
-                          }
+                          setState(() {
+                            unit = {
+                              "name": _unitName.text,
+                              "code": _unitCode.text
+                            };
+                          });
+                          addClassess(unit, _unitName.text, _unitCode.text);
+                          print("object");
                         },
                         child: const Text('Create'))
                   ],
@@ -153,26 +177,40 @@ class _AdminHomePageState extends State<AdminHomePage> {
         });
   }
 
-  addClasses(String unit, List<String> year) {
-    FirebaseFirestore.instance
-        .collection("final users")
-        .doc("final user")
-        .update({
+  addClasses(
+    Map<String, dynamic> unit,
+  ) async {
+    var user = FirebaseAuth.instance.currentUser;
+    FirebaseFirestore.instance.collection("Users").doc(user!.uid).update({
       "classes": FieldValue.arrayUnion([unit])
     });
-    createUnit(unit, year);
   }
 
-  createUnit(String unitName, List<String> year) {
+  createUnit(String unitName, String code) {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     var user = FirebaseAuth.instance.currentUser;
     CollectionReference ref = firebaseFirestore.collection('Classes');
     ref.add({
-      'unit_name': unitName,
       'lecture_id': user!.uid,
-      'year': year,
-      'classes': []
+      'unit_name': unitName,
+      'unit_code': code,
+      'student_attendance': [{}]
     });
+  }
+
+  void addClassess(
+      Map<String, dynamic> unitdetails, String unit, String unitCode) async {
+    final isValid = _formKey.currentState!.validate();
+    if (!isValid) return;
+
+    try {
+      await addClasses(unitdetails)
+          .then((value) => {createUnit(unit, unitCode)})
+          .catchError((e) {});
+    } on FirebaseException catch (e) {
+      print(e);
+    }
+    Navigator.pop(context);
   }
 
   Future<void> logout(BuildContext context) async {
@@ -190,26 +228,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
   }
 }
 
-class Class {
-  String name;
-  String lecturerId;
-  List<AttendanceHistory> attendanceHistory;
 
-  Class(this.name, this.lecturerId, this.attendanceHistory);
-
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        'id': lecturerId,
-        'student': attendanceHistory,
-      };
-}
-
-class AttendanceHistory {
-  String studentNames;
-  String regNo;
-  String signUpTime;
-  AttendanceHistory(this.studentNames, this.regNo, this.signUpTime);
-}
 
 // class ClassList extends StatefulWidget {
 //   @override
