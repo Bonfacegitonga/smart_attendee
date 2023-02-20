@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +5,8 @@ import 'package:smart_attendee/auth/auth_service.dart';
 
 import '../../auth/sign_in/login.dart';
 import '../../component/container.dart';
-import '../../model/user.dart';
+
+import 'attendance.dart';
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key});
@@ -22,7 +21,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
   final TextEditingController _unitName = TextEditingController();
   final TextEditingController _unitCode = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  var unit = <String, dynamic>{};
+  //var unit = <String, dynamic>{};
 
   //List<int> _selectedItems = [];
   //final List<int> _selectedIndexes = [];
@@ -39,6 +38,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
     final screenWidth = MediaQuery.of(context).size.width;
     int crossAxisCount = (screenWidth >= 600) ? 4 : 2;
     return Scaffold(
+        appBar: AppBar(
+          title: const Text("Class Dashboard"),
+        ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -51,6 +53,18 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   builder: (BuildContext context,
                       AsyncSnapshot<QuerySnapshot> snapshot) {
                     if (!snapshot.hasData) {
+                      return const Center(
+                        child: Text("No classes created yet!"),
+                      );
+                    } else if (snapshot.hasError) {
+                      return const Center(
+                        child: Text(
+                          "Something went wrong!",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      );
+                    } else if (snapshot.connectionState ==
+                        ConnectionState.waiting) {
                       return const Center(
                         child: CircularProgressIndicator(),
                       );
@@ -82,11 +96,26 @@ class _AdminHomePageState extends State<AdminHomePage> {
                           itemBuilder: (context, index) {
                             Map<String, dynamic> classData = classesData[index];
                             String name = classData['unit_name'];
+                            String code = classData['unit_code'];
+                            //DocumentReference docRef = classData['unit_code'];
+                            List<dynamic> attendanceHistory =
+                                classData['student_attendance'];
+                            // Map<String, dynamic> recordData =
+                            //     attendanceHistory[index];
+                            // String studentName = recordData['Names'];
                             return GestureDetector(
-                              onTap: () {},
+                              onTap: () {
+                                //print(studentName);
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => AttendanceHistory(
+                                            attendanceHistory:
+                                                attendanceHistory)));
+                              },
                               child: BeautifulContainer(
                                 headline: name,
-                                subtitle: "lets fuck",
+                                subtitle: code,
                               ),
                             );
                           }),
@@ -106,87 +135,94 @@ class _AdminHomePageState extends State<AdminHomePage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            content: Form(
-              key: _formKey,
-              child: Column(children: [
-                const Text("Create class"),
-                TextFormField(
-                  controller: _unitName,
-                  cursorColor: Colors.black,
-                  textInputAction: TextInputAction.next,
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.all(10),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+            content: SizedBox(
+              height: 185,
+              child: Form(
+                key: _formKey,
+                child: (Column(children: [
+                  const Text("Create class"),
+                  TextFormField(
+                    controller: _unitName,
+                    cursorColor: Colors.black,
+                    textInputAction: TextInputAction.next,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.all(10),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      labelText: "Course title",
                     ),
-                    labelText: "Course title",
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Enter course title' : null,
                   ),
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) =>
-                      value!.isEmpty ? 'Enter course title' : null,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                TextFormField(
-                  controller: _unitCode,
-                  cursorColor: Colors.black,
-                  textInputAction: TextInputAction.next,
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.all(10),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    labelText: "Course code",
+                  const SizedBox(
+                    height: 10,
                   ),
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) =>
-                      value!.isEmpty ? 'Enter course code' : null,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text('Cancel')),
-                    const SizedBox(
-                      width: 8,
+                  TextFormField(
+                    controller: _unitCode,
+                    cursorColor: Colors.black,
+                    textInputAction: TextInputAction.next,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.all(10),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      labelText: "Course code",
                     ),
-                    ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            unit = {
-                              "name": _unitName.text,
-                              "code": _unitCode.text
-                            };
-                          });
-                          addClassess(unit, _unitName.text, _unitCode.text);
-                          print("object");
-                        },
-                        child: const Text('Create'))
-                  ],
-                )
-              ]),
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Enter course code' : null,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Cancel')),
+                      const SizedBox(
+                        width: 8,
+                      ),
+                      ElevatedButton(
+                          onPressed: () {
+                            // setState(() {
+                            //   unit = {
+                            //     "name": _unitName.text,
+                            //     "code": _unitCode.text
+                            //   };
+                            // });
+                            addClassess(_unitName.text.toUpperCase(),
+                                _unitCode.text.toUpperCase());
+                          },
+                          child: const Text('Create'))
+                    ],
+                  )
+                ])),
+              ),
             ),
           );
         });
   }
 
-  addClasses(
-    Map<String, dynamic> unit,
-  ) async {
-    var user = FirebaseAuth.instance.currentUser;
-    FirebaseFirestore.instance.collection("Users").doc(user!.uid).update({
-      "classes": FieldValue.arrayUnion([unit])
-    });
-  }
+  final addStudent = {
+    "Names": "Wanjiku Bonface Gitonga",
+    "reg_no": "SB06/SR/MN/9877/2019",
+    "time": DateTime.now()
+  };
 
-  createUnit(String unitName, String code) {
+  // addClasses() async {
+  //   var user = FirebaseAuth.instance.currentUser;
+  //   FirebaseFirestore.instance.collection("Classes").doc(document).update({
+  //     "classes": FieldValue.arrayUnion([addStudent])
+  //   });
+  // }
+
+  createUnit(String unitName, String code) async {
     FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
     var user = FirebaseAuth.instance.currentUser;
     CollectionReference ref = firebaseFirestore.collection('Classes');
@@ -194,19 +230,16 @@ class _AdminHomePageState extends State<AdminHomePage> {
       'lecture_id': user!.uid,
       'unit_name': unitName,
       'unit_code': code,
-      'student_attendance': [{}]
+      'student_attendance': [addStudent]
     });
   }
 
-  void addClassess(
-      Map<String, dynamic> unitdetails, String unit, String unitCode) async {
+  void addClassess(String unit, String unitCode) async {
     final isValid = _formKey.currentState!.validate();
     if (!isValid) return;
 
     try {
-      await addClasses(unitdetails)
-          .then((value) => {createUnit(unit, unitCode)})
-          .catchError((e) {});
+      await createUnit(unit, unitCode).catchError((e) {});
     } on FirebaseException catch (e) {
       print(e);
     }

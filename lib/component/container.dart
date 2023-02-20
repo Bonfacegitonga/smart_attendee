@@ -34,8 +34,8 @@ class BeautifulContainer extends StatelessWidget {
           Text(
             headline,
             style: const TextStyle(
-              color: Colors.white,
-              fontSize: 24.0,
+              color: Color.fromRGBO(255, 255, 255, 1),
+              fontSize: 20.0,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -46,7 +46,7 @@ class BeautifulContainer extends StatelessWidget {
             subtitle,
             style: const TextStyle(
               color: Colors.white70,
-              fontSize: 16.0,
+              fontSize: 13.0,
             ),
           ),
         ],
