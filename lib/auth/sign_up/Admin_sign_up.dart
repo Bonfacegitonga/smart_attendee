@@ -43,7 +43,7 @@ class _AdminSignUpPageState extends State<AdminSignUpPage> {
               const SizedBox(height: 15),
               const Text(
                 "Welcome",
-                style: headingStyle,
+                // style: headingStyle,
                 textAlign: TextAlign.center,
               ),
               const Text(

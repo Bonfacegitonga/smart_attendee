@@ -2,10 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_attendee/auth/auth_service.dart';
+import 'package:smart_attendee/constant/constant.dart';
+import 'package:smart_attendee/model/course.dart';
 
 import '../../auth/sign_in/login.dart';
 import '../../component/container.dart';
 
+import '../../component/drawer.dart';
 import 'attendance.dart';
 
 class AdminHomePage extends StatefulWidget {
@@ -16,35 +19,113 @@ class AdminHomePage extends StatefulWidget {
 }
 
 class _AdminHomePageState extends State<AdminHomePage> {
+  final CollectionReference collectionRef =
+      FirebaseFirestore.instance.collection('Classes');
   AuthService authService = AuthService();
   User user = FirebaseAuth.instance.currentUser!;
   final TextEditingController _unitName = TextEditingController();
   final TextEditingController _unitCode = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  //var unit = <String, dynamic>{};
+  bool isSelectionMode = false;
+  List<String> selectedIds = [];
+  bool isAllSelected = false;
+  bool selectAll = false;
+  List? classesData;
+  //late Function getData;
 
-  //List<int> _selectedItems = [];
-  //final List<int> _selectedIndexes = [];
-  //final year = ['1st', '2rd', '3rd', '4th'];
+  @override
+  void initState() {
+    super.initState();
 
-  // @override
-  // void initState() {
-  //   // TODO: implement initState
-  //   super.initState();
-  // }
+    //initializeSelection();
+  }
+
+  Future<void> deleteDocuments() async {
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+
+    for (String id in selectedIds) {
+      batch.delete(collectionRef.doc(id));
+    }
+
+    await batch.commit();
+    isSelectionMode = false;
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     int crossAxisCount = (screenWidth >= 600) ? 4 : 2;
+
     return Scaffold(
+        drawer: MyDrawer(
+          names: '',
+          email: '',
+          signOut: logout,
+        ),
         appBar: AppBar(
           title: const Text("Class Dashboard"),
+          actions: [
+            if (isSelectionMode)
+              IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: deleteDocuments,
+              ),
+            if (isSelectionMode)
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  setState(() {
+                    isSelectionMode = false;
+                    isAllSelected = false;
+                    selectedIds.clear();
+                  });
+                  // initializeSelection();
+                },
+              )
+          ],
         ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              Visibility(
+                  visible: isSelectionMode,
+                  child: isAllSelected
+                      ? TextButton(
+                          style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.blue)),
+                          child: const Text(
+                            'Unselect all',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              isAllSelected = false;
+                              isSelectionMode = false;
+                              selectedIds.clear();
+                            });
+                          },
+                        )
+                      : TextButton(
+                          style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.blue)),
+                          child: const Text(
+                            'Select all',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              isAllSelected = true;
+                              selectedIds = classesData!
+                                  .map<String>((classData) => classData['id'])
+                                  .toList();
+                            });
+                          },
+                        )),
               StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
                       .collection('Classes')
@@ -56,33 +137,29 @@ class _AdminHomePageState extends State<AdminHomePage> {
                       return const Center(
                         child: Text("No classes created yet!"),
                       );
-                    } else if (snapshot.hasError) {
+                    }
+                    if (snapshot.hasError) {
                       return const Center(
                         child: Text(
                           "Something went wrong!",
                           style: TextStyle(color: Colors.red),
                         ),
                       );
-                    } else if (snapshot.connectionState ==
-                        ConnectionState.waiting) {
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
                         child: CircularProgressIndicator(),
                       );
                     }
 
-                    //Map<String, String>? data = snapshot.data!.data()?.cast<String, String>();
-                    List<dynamic> classesData =
+                    classesData =
                         snapshot.data!.docs.map((DocumentSnapshot document) {
-                      return document.data();
+                      Map<String, dynamic> data =
+                          document.data() as Map<String, dynamic>;
+                      String id = document.id;
+                      return {'id': id, ...data};
                     }).toList();
-                    // List<Class> classes = [];
-                    // for (int i = 0; i < classesData.length; i++) {
-                    //   Map<String, dynamic> classData = classesData[i];
-                    //   String course = classData['courseName'];
-                    //   String eCode = classData['courseCode'];
-                    //   //String classLink = classData['']
-                    //   classes.add(Class(courseName: course, courseCode: eCode));
-                    // }
+
                     return Expanded(
                       child: GridView.builder(
                           gridDelegate:
@@ -92,30 +169,45 @@ class _AdminHomePageState extends State<AdminHomePage> {
                             crossAxisSpacing: 10.0,
                             childAspectRatio: 1.0,
                           ),
-                          itemCount: classesData.length,
+                          itemCount: classesData!.length,
                           itemBuilder: (context, index) {
-                            Map<String, dynamic> classData = classesData[index];
+                            Map<String, dynamic> classData =
+                                classesData![index];
                             String name = classData['unit_name'];
                             String code = classData['unit_code'];
-                            //DocumentReference docRef = classData['unit_code'];
+                            String id = classData['id'];
                             List<dynamic> attendanceHistory =
                                 classData['student_attendance'];
-                            // Map<String, dynamic> recordData =
-                            //     attendanceHistory[index];
-                            // String studentName = recordData['Names'];
+                            bool isSelected = selectedIds.contains(id);
+
                             return GestureDetector(
+                              onLongPress: () {
+                                setState(() {
+                                  isSelectionMode = true;
+                                  if (isSelected) {
+                                    selectedIds.remove(id);
+                                  } else {
+                                    selectedIds.add(id);
+                                  }
+                                });
+                              },
                               onTap: () {
-                                //print(studentName);
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => AttendanceHistory(
-                                            attendanceHistory:
-                                                attendanceHistory)));
+                                              attendanceHistory:
+                                                  attendanceHistory,
+                                              title: name,
+                                              //documentLink: link,
+                                            )));
                               },
                               child: BeautifulContainer(
                                 headline: name,
                                 subtitle: code,
+                                kcolor: selectedIds.contains(id)
+                                    ? primaryColor
+                                    : selectedColor,
                               ),
                             );
                           }),
@@ -136,7 +228,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
         builder: (BuildContext context) {
           return AlertDialog(
             content: SizedBox(
-              height: 185,
+              height: 230,
               child: Form(
                 key: _formKey,
                 child: (Column(children: [

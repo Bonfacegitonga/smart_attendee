@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:smart_attendee/constant/constant.dart';
 
 class BeautifulContainer extends StatelessWidget {
   final String headline;
   final String subtitle;
+  final LinearGradient kcolor;
 
   const BeautifulContainer(
-      {super.key, required this.headline, required this.subtitle});
+      {super.key,
+      required this.headline,
+      required this.subtitle,
+      required this.kcolor});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      // height: 0,
-      // width: 0,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.lightBlueAccent, Colors.indigo],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.all(Radius.circular(15.0)),
-        boxShadow: [
+      decoration: BoxDecoration(
+        gradient: kcolor,
+        borderRadius: const BorderRadius.all(Radius.circular(15.0)),
+        boxShadow: const [
           BoxShadow(
             color: Colors.black26,
             offset: Offset(5.0, 5.0),

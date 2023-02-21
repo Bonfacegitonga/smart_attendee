@@ -56,7 +56,7 @@ class _SignUpPageState extends State<SignUpPage> {
               const SizedBox(height: 15),
               const Text(
                 "Welcome",
-                style: headingStyle,
+                //style: headingStyle,
                 textAlign: TextAlign.center,
               ),
               const Text(

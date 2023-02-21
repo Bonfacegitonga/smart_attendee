@@ -1,26 +1,31 @@
 // import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 
-class MyUnit {
-  String id;
-  Map<String, dynamic> data;
-
-  MyUnit({required this.id, required this.data});
-
-  factory MyUnit.fromFirestore(DocumentSnapshot doc) {
-    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-    return MyUnit(id: doc.id, data: data);
-  }
+class SelectedClasses {
+  String name;
+  bool selected;
+  SelectedClasses(this.name, this.selected);
 }
+// class MyUnit {
+//   String id;
+//   Map<String, dynamic> data;
 
-Future<List<MyUnit>> getMyUnits() async {
-  QuerySnapshot<Map<String, dynamic>> querySnapshot =
-      await FirebaseFirestore.instance.collection('Users').get();
-  List<MyUnit> myUnits =
-      querySnapshot.docs.map((doc) => MyUnit.fromFirestore(doc)).toList();
-  return myUnits;
-}
+//   MyUnit({required this.id, required this.data});
+
+//   factory MyUnit.fromFirestore(DocumentSnapshot doc) {
+//     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+//     return MyUnit(id: doc.id, data: data);
+//   }
+// }
+
+// Future<List<MyUnit>> getMyUnits() async {
+//   QuerySnapshot<Map<String, dynamic>> querySnapshot =
+//       await FirebaseFirestore.instance.collection('Users').get();
+//   List<MyUnit> myUnits =
+//       querySnapshot.docs.map((doc) => MyUnit.fromFirestore(doc)).toList();
+//   return myUnits;
+// }
 
 
 

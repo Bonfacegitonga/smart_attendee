@@ -5,8 +5,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class AttendanceHistory extends StatefulWidget {
+  //final String documentLink;
+  final String title;
   final List<dynamic> attendanceHistory;
-  const AttendanceHistory({super.key, required this.attendanceHistory});
+  const AttendanceHistory({
+    super.key,
+    required this.attendanceHistory,
+    required this.title,
+  });
 
   @override
   State<AttendanceHistory> createState() => _AttendanceHistoryState();
@@ -20,9 +26,18 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        leading: IconButton(
+          //iconSize: 72,
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            // ...
+          },
+        ),
+        title: Text(widget.title),
+      ),
       body: Padding(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         child: ListView.builder(
             itemCount: widget.attendanceHistory.length,
             itemBuilder: (BuildContext context, int index) {
@@ -40,12 +55,13 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
                       children: [
                         Text(
                           studentName.toUpperCase(),
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 20),
                         ),
                         const Text(
                           "11-11-2019",
                           style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w300),
+                              fontSize: 12, fontWeight: FontWeight.w300),
                         )
                       ],
                     ),
