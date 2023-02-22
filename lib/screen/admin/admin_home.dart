@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_attendee/auth/auth_service.dart';
 import 'package:smart_attendee/constant/constant.dart';
+import 'package:smart_attendee/firebase/firebase_service.dart';
 import 'package:smart_attendee/model/course.dart';
 
 import '../../auth/sign_in/login.dart';
@@ -26,17 +27,21 @@ class _AdminHomePageState extends State<AdminHomePage> {
   final TextEditingController _unitName = TextEditingController();
   final TextEditingController _unitCode = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  UserService userService = UserService();
   bool isSelectionMode = false;
   List<String> selectedIds = [];
   bool isAllSelected = false;
   bool selectAll = false;
   List? classesData;
+  String? fName;
+  String? sName;
+  String? role;
   //late Function getData;
 
   @override
   void initState() {
     super.initState();
-
+    getUser();
     //initializeSelection();
   }
 
@@ -51,24 +56,45 @@ class _AdminHomePageState extends State<AdminHomePage> {
     isSelectionMode = false;
   }
 
+  Future getUser() async {
+    User user = FirebaseAuth.instance.currentUser!;
+    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+        .collection('Users')
+        .doc(user.uid)
+        .get();
+    if (documentSnapshot.exists) {
+      setState(() {
+        fName = documentSnapshot.get('last_name');
+        sName = documentSnapshot.get('first_name');
+        role = documentSnapshot.get('role');
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     int crossAxisCount = (screenWidth >= 600) ? 4 : 2;
+    final email = user.email;
+    final String myrole = role.toString();
+    final String fullNames = '$fName $sName ($myrole)';
 
     return Scaffold(
         drawer: MyDrawer(
-          names: '',
-          email: '',
+          names: fullNames.toUpperCase(),
+          email: email.toString(),
           signOut: logout,
         ),
         appBar: AppBar(
+          backgroundColor: kPrimaryColor,
           title: const Text("Class Dashboard"),
           actions: [
             if (isSelectionMode)
               IconButton(
                 icon: const Icon(Icons.delete),
-                onPressed: deleteDocuments,
+                onPressed: () {
+                  userService.deleteDocuments(selectedIds, isSelectionMode);
+                },
               ),
             if (isSelectionMode)
               IconButton(
@@ -199,7 +225,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                               attendanceHistory:
                                                   attendanceHistory,
                                               title: name,
-                                              //documentLink: link,
+                                              documentLink: id,
+                                              cName: name,
+                                              cCode: code,
                                             )));
                               },
                               child: BeautifulContainer(
@@ -217,6 +245,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
           ),
         ),
         floatingActionButton: FloatingActionButton(
+          backgroundColor: kPrimaryColor,
           onPressed: createClasses,
           child: const Icon(Icons.add_card),
         ));

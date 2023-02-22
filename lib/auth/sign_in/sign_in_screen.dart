@@ -118,10 +118,10 @@ class _SignInScreenState extends State<SignInScreen> {
                         "Forgot password? ",
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     ElevatedButton(
                         onPressed: signIn, child: const Text("login")),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

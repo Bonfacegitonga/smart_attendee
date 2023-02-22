@@ -5,7 +5,7 @@ const primaryColor = LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
 );
-const kPrimaryLightColor = Color(0xFFDFECFF);
+const kPrimaryColor = Colors.indigo;
 const selectedColor = LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,

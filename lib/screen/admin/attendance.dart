@@ -1,17 +1,22 @@
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:smart_attendee/screen/admin/qr_code.dart';
 
 class AttendanceHistory extends StatefulWidget {
-  //final String documentLink;
+  final String cName;
+  final String cCode;
+  final String documentLink;
   final String title;
   final List<dynamic> attendanceHistory;
   const AttendanceHistory({
     super.key,
     required this.attendanceHistory,
     required this.title,
+    required this.cName,
+    required this.cCode,
+    required this.documentLink,
   });
 
   @override
@@ -26,6 +31,7 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButtonLocation: ExpandableFab.location,
       appBar: AppBar(
         leading: IconButton(
           //iconSize: 72,
@@ -82,6 +88,33 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
                 ),
               );
             }),
+      ),
+      floatingActionButton: ExpandableFab(
+        distance: 60,
+        type: ExpandableFabType.up,
+        children: [
+          FloatingActionButton.small(
+            heroTag: null,
+            tooltip: 'Download pdf',
+            child: const Icon(Icons.picture_as_pdf),
+            onPressed: () {},
+          ),
+          FloatingActionButton.small(
+            heroTag: null,
+            tooltip: 'Generate Qr',
+            child: const Icon(Icons.qr_code),
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => QrCodeShare(
+                            classLink: widget.documentLink,
+                            courseName: widget.cName,
+                            courseCode: widget.cCode,
+                          )));
+            },
+          ),
+        ],
       ),
     );
   }

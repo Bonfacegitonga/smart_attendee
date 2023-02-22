@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:getwidget/components/avatar/gf_avatar.dart';
 import 'package:getwidget/components/drawer/gf_drawer.dart';
 import 'package:getwidget/components/drawer/gf_drawer_header.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:smart_attendee/constant/constant.dart';
 
 class MyDrawer extends StatelessWidget {
   final String names;
@@ -16,26 +18,54 @@ class MyDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GFDrawer(
+      // gradient: primaryColor,
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          GFDrawerHeader(
-            currentAccountPicture: const GFAvatar(
-              radius: 80.0,
-              backgroundImage: NetworkImage(
-                  "https://cdn.pixabay.com/photo/2017/12/03/18/04/christmas-balls-2995437_960_720.jpg"),
-            ),
+          Container(
+            padding: const EdgeInsets.only(top: 50),
+            decoration: const BoxDecoration(gradient: primaryColor),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(names),
-                Text(email),
+              children: [
+                const CircleAvatar(
+                  radius: 60.0,
+                  backgroundImage: NetworkImage(
+                      "https://cdn.pixabay.com/photo/2017/12/03/18/04/christmas-balls-2995437_960_720.jpg"),
+                ),
+                const SizedBox(
+                  height: 6,
+                ),
+                Text(names,
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                      color: Colors.white,
+                    )),
+                const SizedBox(
+                  height: 4,
+                ),
+                Text(email,
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      color: Colors.white,
+                    )),
+                const SizedBox(
+                  height: 5,
+                ),
               ],
             ),
           ),
           ListTile(
-            title: const Text('Sign Out'),
+            leading: const Icon(Icons.logout),
+            title: Text(
+              'SIGN OUT',
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                color: Colors.blueAccent,
+              ),
+            ),
             onTap: () {
               signOut(context);
             },
