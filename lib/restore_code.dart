@@ -1,5 +1,51 @@
 import 'package:flutter/material.dart';
 
+// Future<void> _generatePdf() async {
+//   // Create a new PDF document
+//   final pdf = pw.Document();
+
+//   // Add a title to the document
+//   pdf.addPage(pw.MultiPage(
+//       pageFormat: PdfPageFormat.a4,
+//       margin: const pw.EdgeInsets.all(32),
+//       build: (pw.Context context) {
+//         return [
+//           pw.Header(level: 0, child: pw.Text('Attendance History')),
+//           pw.Padding(padding: const pw.EdgeInsets.all(16)),
+//           pw.Table.fromTextArray(
+//               data: [
+//                 ['Date', 'Name', 'Registration No.', 'Time'],
+//                 ...widget.attendanceHistory.map((attendance) {
+//                   final date = DateFormat.yMMMMd('en_US')
+//                       .format(attendance['time'].toDate());
+//                   final name = attendance['Names'].toUpperCase();
+//                   final regNo = attendance['reg_no'];
+//                   final time = DateFormat('hh:mm a')
+//                       .format(attendance['time'].toDate());
+//                   return [date, name, regNo, time];
+//                 }).toList(),
+//               ],
+//               headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+//               border: pw.TableBorder.all(width: 1),
+//               cellAlignments: {
+//                 0: pw.Alignment.centerLeft,
+//                 1: pw.Alignment.centerLeft,
+//                 2: pw.Alignment.center,
+//                 3: pw.Alignment.center,
+//               }),
+//         ];
+//       }));
+
+//   // Save the PDF document to a file
+//   final bytes = await pdf.save();
+//   final fileName = 'AttendanceHistory_${widget.cCode}.pdf';
+//   final dir = await getApplicationDocumentsDirectory();
+//   final file = File('${dir.path}/$fileName');
+//   await file.writeAsBytes(bytes);
+
+//   // Open the PDF document with the default PDF viewer app
+//   await OpenFile.open(file.path);
+// }
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {

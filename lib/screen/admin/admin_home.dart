@@ -331,9 +331,11 @@ class _AdminHomePageState extends State<AdminHomePage> {
   }
 
   final addStudent = {
-    "Names": "Wanjiku Bonface Gitonga",
-    "reg_no": "SB06/SR/MN/9877/2019",
-    "time": DateTime.now()
+    {
+      "Names": "Wanjiku Bonface Gitonga",
+      "reg_no": "SB06/SR/MN/9877/2019",
+      "time": DateTime.now()
+    },
   };
 
   // addClasses() async {
@@ -351,7 +353,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
       'lecture_id': user!.uid,
       'unit_name': unitName,
       'unit_code': code,
-      'student_attendance': [addStudent]
+      'student_attendance': [
+        addStudent,
+      ]
     });
   }
 
