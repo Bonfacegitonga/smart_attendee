@@ -54,6 +54,8 @@ dependencies:
   pdf: ^3.9.0
   better_open_file: ^3.6.4
   share_files_and_screenshot_widgets: ^1.0.6
+  flutter_barcode_scanner: ^2.0.0
+
 
 
 dev_dependencies:

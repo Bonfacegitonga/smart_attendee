@@ -331,11 +331,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
   }
 
   final addStudent = {
-    {
-      "Names": "Wanjiku Bonface Gitonga",
-      "reg_no": "SB06/SR/MN/9877/2019",
-      "time": DateTime.now()
-    },
+    "Names": "Wanjiku Bonface Gitonga",
+    "reg_no": "SB06/SR/MN/9877/2019",
+    "time": DateTime.now()
   };
 
   // addClasses() async {

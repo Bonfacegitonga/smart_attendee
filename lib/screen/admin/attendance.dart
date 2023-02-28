@@ -40,7 +40,7 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
 
   @override
   Widget build(BuildContext context) {
-    widget.attendanceHistory.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    //widget.attendanceHistory.sort((a, b) => a.time.compareTo(b.time));
     final List<List<Map<String, dynamic>>> groupedAttendance = [];
     DateTime? currentDate;
     List<Map<String, dynamic>>? currentGroup;
@@ -143,6 +143,7 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
         type: ExpandableFabType.up,
         children: [
           FloatingActionButton.small(
+            backgroundColor: kPrimaryColor,
             heroTag: null,
             tooltip: 'Download pdf',
             child: const Icon(Icons.picture_as_pdf),
@@ -151,6 +152,7 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
             },
           ),
           FloatingActionButton.small(
+            backgroundColor: kPrimaryColor,
             heroTag: null,
             tooltip: 'Generate Qr',
             child: const Icon(Icons.qr_code),

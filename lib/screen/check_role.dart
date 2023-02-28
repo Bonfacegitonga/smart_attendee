@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:smart_attendee/screen/admin/admin_home.dart';
+import 'package:smart_attendee/screen/student/scan_qr.dart';
 import 'package:smart_attendee/screen/student/student_home.dart';
 
 class RoleScreen extends StatefulWidget {
@@ -34,8 +35,8 @@ class _RoleScreenState extends State<RoleScreen> {
 
   routes() {
     if (_userRole == 'Student') {
-      Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const StudentHomePage()));
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => QRScannerPage()));
     } else {
       Navigator.of(context)
           .push(MaterialPageRoute(builder: (context) => const AdminHomePage()));
