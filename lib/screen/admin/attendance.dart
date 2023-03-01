@@ -86,10 +86,11 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
               final List<Map<String, dynamic>> attendanceList =
                   groupedAttendance[index];
               final String date = DateFormat.yMMMMd('en_US')
-                  .format(attendanceList[0]['time'].toDate());
+                  .format(attendanceList[index]['time'].toDate());
               final List<Widget> children = [];
 
-              for (final Map<String, dynamic> attendance in attendanceList) {
+              for (final Map<String, dynamic> attendance
+                  in attendanceList.reversed) {
                 children.add(Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -101,19 +102,28 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
                             style: GoogleFonts.inconsolata(
                                 fontWeight: FontWeight.w800, fontSize: 18),
                           ),
-                          Text(DateFormat('hh:mm a')
-                              .format(attendance['time'].toDate()))
+                          Text(
+                              DateFormat.yMMMMd('en_US')
+                                  .format(attendance['time'].toDate()),
+                              style: GoogleFonts.inter(
+                                  color: const Color.fromARGB(255, 199, 84, 8)))
                         ],
                       ),
                       const SizedBox(
-                        height: 5,
+                        height: 7,
                       ),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(attendance['reg_no'],
-                              style: GoogleFonts.inconsolata(
-                                  fontWeight: FontWeight.w500, fontSize: 16)),
+                          Text(
+                            attendance['reg_no'],
+                            style: GoogleFonts.inconsolata(
+                                fontWeight: FontWeight.w500, fontSize: 16),
+                          ),
+                          Text(
+                            DateFormat('hh:mm a')
+                                .format(attendance['time'].toDate()),
+                          )
                         ],
                       ),
                       const Divider(
@@ -127,10 +137,12 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
                   const SizedBox(
                     height: 15,
                   ),
-                  Text(date,
-                      style: GoogleFonts.inter(
-                          fontSize: 16, fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 10),
+                  // Text(date,
+                  //     style: GoogleFonts.inter(
+                  //         color: const Color.fromARGB(255, 199, 84, 8),
+                  //         fontSize: 16,
+                  //         fontWeight: FontWeight.w600)),
+                  // const SizedBox(height: 10),
                   ...children,
                   const SizedBox(height: 16),
                 ],

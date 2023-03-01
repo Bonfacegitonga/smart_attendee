@@ -202,7 +202,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                             String name = classData['unit_name'];
                             String code = classData['unit_code'];
                             String id = classData['id'];
-                            List<dynamic> attendanceHistory =
+                            List<dynamic>? attendanceHistory =
                                 classData['student_attendance'];
                             bool isSelected = selectedIds.contains(id);
 
@@ -223,7 +223,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                     MaterialPageRoute(
                                         builder: (context) => AttendanceHistory(
                                               attendanceHistory:
-                                                  attendanceHistory,
+                                                  attendanceHistory ?? [],
                                               title: name,
                                               documentLink: id,
                                               cName: name,
@@ -330,11 +330,11 @@ class _AdminHomePageState extends State<AdminHomePage> {
         });
   }
 
-  final addStudent = {
-    "Names": "Wanjiku Bonface Gitonga",
-    "reg_no": "SB06/SR/MN/9877/2019",
-    "time": DateTime.now()
-  };
+  // final addStudent = {
+  //   "Names": "Wanjiku Bonface Gitonga",
+  //   "reg_no": "SB06/SR/MN/9877/2019",
+  //   "time": DateTime.now()
+  // };
 
   // addClasses() async {
   //   var user = FirebaseAuth.instance.currentUser;
@@ -351,9 +351,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
       'lecture_id': user!.uid,
       'unit_name': unitName,
       'unit_code': code,
-      'student_attendance': [
-        addStudent,
-      ]
     });
   }
 

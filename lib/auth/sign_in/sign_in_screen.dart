@@ -48,7 +48,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 textAlign: TextAlign.center,
               ),
               const Text(
-                "Sign in with your email and password\nor continue with social media",
+                "Sign in with your email and password",
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 15),
