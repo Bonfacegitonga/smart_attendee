@@ -6,6 +6,7 @@ class Utils {
   showSnackBar(String? text) {
     if (text == null) return;
     final snackBar = SnackBar(
+      duration: const Duration(seconds: 10),
       content: Text(text),
       backgroundColor: Colors.red,
     );

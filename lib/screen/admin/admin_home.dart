@@ -83,7 +83,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
         drawer: MyDrawer(
           names: fullNames.toUpperCase(),
           email: email.toString(),
-          signOut: logout,
+          signOut: authService.logout,
         ),
         appBar: AppBar(
           backgroundColor: kPrimaryColor,
@@ -366,19 +366,19 @@ class _AdminHomePageState extends State<AdminHomePage> {
     Navigator.pop(context);
   }
 
-  Future<void> logout(BuildContext context) async {
-    const CircularProgressIndicator();
-    await FirebaseAuth.instance.signOut();
-    login();
-  }
+  // Future<void> logout(BuildContext context) async {
+  //   const CircularProgressIndicator();
+  //   await FirebaseAuth.instance.signOut();
+  //   login();
+  // }
 
-  login() {
-    Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const Login(),
-        ));
-  }
+  // login() {
+  //   Navigator.pushReplacement(
+  //       context,
+  //       MaterialPageRoute(
+  //         builder: (context) => const Login(),
+  //       ));
+  // }
 }
 
 

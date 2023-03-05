@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/components/avatar/gf_avatar.dart';
 import 'package:getwidget/components/drawer/gf_drawer.dart';
@@ -5,7 +7,7 @@ import 'package:getwidget/components/drawer/gf_drawer_header.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smart_attendee/constant/constant.dart';
 
-class MyDrawer extends StatelessWidget {
+class MyDrawer extends StatefulWidget {
   final String names;
   final String email;
   final Function signOut;
@@ -16,7 +18,41 @@ class MyDrawer extends StatelessWidget {
       required this.signOut});
 
   @override
+  State<MyDrawer> createState() => _MyDrawerState();
+}
+
+class _MyDrawerState extends State<MyDrawer> {
+  User user = FirebaseAuth.instance.currentUser!;
+  String? fName;
+  String? sName;
+  String? role;
+
+  Future getUser() async {
+    //User user = FirebaseAuth.instance.currentUser!;
+    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+        .collection('Users')
+        .doc(user.uid)
+        .get();
+    if (documentSnapshot.exists) {
+      setState(() {
+        fName = documentSnapshot.get('last_name');
+        sName = documentSnapshot.get('first_name');
+        role = documentSnapshot.get('role');
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    getUser();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final email = user.email;
+    final String myrole = role.toString();
+    final String fullNames = '$fName $sName ($myrole)';
     return GFDrawer(
       // gradient: primaryColor,
       child: ListView(
@@ -35,7 +71,7 @@ class MyDrawer extends StatelessWidget {
                 const SizedBox(
                   height: 6,
                 ),
-                Text(names,
+                Text(fullNames,
                     style: GoogleFonts.inter(
                       fontWeight: FontWeight.w700,
                       fontSize: 16,
@@ -44,7 +80,7 @@ class MyDrawer extends StatelessWidget {
                 const SizedBox(
                   height: 4,
                 ),
-                Text(email,
+                Text(email.toString(),
                     style: GoogleFonts.inter(
                       fontWeight: FontWeight.w500,
                       fontSize: 14,
@@ -67,7 +103,7 @@ class MyDrawer extends StatelessWidget {
               ),
             ),
             onTap: () {
-              signOut(context);
+              widget.signOut(context);
             },
           ),
         ],

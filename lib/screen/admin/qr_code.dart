@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:smart_attendee/constant/constant.dart';
 
 class QrCodeShare extends StatefulWidget {
   final String courseName;
@@ -28,6 +29,11 @@ class _QrCodeShareState extends State<QrCodeShare> {
   final controller = ScreenshotController();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Screenshot(
       controller: controller,
@@ -41,44 +47,58 @@ class _QrCodeShareState extends State<QrCodeShare> {
                 },
                 icon: const Icon(Icons.arrow_back)),
             backgroundColor: Colors.white),
-        body: Column(
-          children: [
-            const SizedBox(
-              height: 50,
-            ),
-            qrCode(),
-            const SizedBox(
-              height: 15,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ElevatedButton(
-                    onPressed: () async {
-                      final image = await controller.capture();
-                      if (image == null) return;
-                      await saveImage(image);
-                      _showToast(context);
-                    },
-                    child: Row(
-                      //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: const [Icon(Icons.download), Text("Download")],
-                    )),
-                ElevatedButton(
-                    onPressed: () async {
-                      final image = await controller.capture();
-                      saveAndShare(image!);
-                    },
-                    child: Row(
-                      //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: const [
-                        Icon(Icons.share_rounded),
-                        Text("Share")
-                      ],
-                    )),
-              ],
-            )
-          ],
+        body: Container(
+          color: Colors.white,
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 50,
+              ),
+              qrCode(),
+              const SizedBox(
+                height: 15,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                      onPressed: () async {
+                        final image = await controller.capture();
+                        if (image == null) return;
+                        await saveImage(image);
+                        _showToast(context);
+                      },
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.indigo),
+                      ),
+                      child: Row(
+                        //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: const [
+                          Icon(Icons.download),
+                          Text("Download")
+                        ],
+                      )),
+                  ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.indigo),
+                      ),
+                      onPressed: () async {
+                        final image = await controller.capture();
+                        saveAndShare(image!);
+                      },
+                      child: Row(
+                        //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: const [
+                          Icon(Icons.share_rounded),
+                          Text("Share")
+                        ],
+                      )),
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );

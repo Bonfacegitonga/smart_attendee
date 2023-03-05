@@ -32,10 +32,10 @@ class AuthService {
     navigatorKey.currentState!.popUntil((route) => route.isFirst);
   }
 
-  Future<void> logout() async {
+  Future<void> logout(BuildContext context) async {
     const CircularProgressIndicator();
     await FirebaseAuth.instance.signOut();
-    login;
+    login(context);
   }
 
   login(BuildContext context) {

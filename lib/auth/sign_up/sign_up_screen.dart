@@ -2,6 +2,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:smart_attendee/auth/sign_up/student_signup.dart';
 import 'package:smart_attendee/auth/sign_up/Admin_sign_up.dart';
 import 'package:smart_attendee/auth/util.dart';
@@ -12,6 +13,7 @@ import 'package:smart_attendee/screen/student/student_home.dart';
 
 import '../../constant/constant.dart';
 import '../../screen/admin/admin_home.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SignUpPage extends StatefulWidget {
   //final Function() onClickedSignIn;
@@ -48,20 +50,31 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //appBar: AppBar(backgroundColor: kPrimaryColor,),
       body: Padding(
-        padding: const EdgeInsets.only(left: 50, right: 50, top: 40),
+        padding: const EdgeInsets.only(left: 20, right: 20, top: 40),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(height: 15),
-              const Text(
-                "Welcome",
-                //style: headingStyle,
+              const SizedBox(height: 25),
+              Text(
+                "WELCOME",
+                style: GoogleFonts.inder(
+                    fontSize: 24, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
-              const Text(
-                "Create New Account\nor continue with social media",
-                textAlign: TextAlign.center,
+              const SizedBox(
+                height: 15,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text("Create New Account",
+                      style: GoogleFonts.inter(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                          color: kPrimaryColor)),
+                ],
               ),
               const SizedBox(height: 15),
               Form(
@@ -207,61 +220,76 @@ class _SignUpPageState extends State<SignUpPage> {
                         return null;
                       },
                     ),
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text(
-                        "Forgot password",
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: () {},
+                          child: const Text(
+                            "Forgot password",
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            const Text("Have an account?"),
+                            TextButton(
+                                onPressed: () {},
+                                child: const Text(
+                                  "Login",
+                                  style: TextStyle(color: Colors.blue),
+                                ))
+                          ],
+                        )
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    ElevatedButton(
-                        onPressed: () {
-                          switch (_selectedRole) {
-                            case 'Student':
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => StudentSignUP(
-                                      fName: firstNameController.text,
-                                      lName: lastNameController.text,
-                                      phoneNumber: phoneController.text,
-                                      email: emailController.text,
-                                      password: passwordController.text,
-                                      role: _selectedRole),
-                                ),
-                              );
-                              break;
-                            case 'Lecturer':
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AdminSignUpPage(
-                                      fName: firstNameController.text,
-                                      lName: lastNameController.text,
-                                      phoneNumber: phoneController.text,
-                                      email: emailController.text,
-                                      password: passwordController.text,
-                                      role: _selectedRole),
-                                ),
-                              );
-                              break;
-                          }
-                        },
-                        child: const Text("Next")),
-                    const SizedBox(height: 8),
-                    RichText(
-                        text: const TextSpan(
-                            style: TextStyle(color: Colors.black),
-                            text: 'Already have account? ',
-                            children: [
-                          TextSpan(
-                              // recognizer: TapGestureRecognizer()
-                              //   ..onTap = widget.onClickedSignIn,
-                              text: 'Login',
-                              style: TextStyle(
-                                  decoration: TextDecoration.underline,
-                                  color: Colors.blue))
-                        ]))
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ElevatedButton(
+                            style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        oPrimaryColor)),
+                            onPressed: () {
+                              final isValid = formKey.currentState!.validate();
+                              if (!isValid) return;
+
+                              switch (_selectedRole) {
+                                case 'Student':
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => StudentSignUP(
+                                          fName: firstNameController.text,
+                                          lName: lastNameController.text,
+                                          phoneNumber: phoneController.text,
+                                          email: emailController.text,
+                                          password: passwordController.text,
+                                          role: _selectedRole),
+                                    ),
+                                  );
+                                  break;
+                                case 'Lecturer':
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => AdminSignUpPage(
+                                          fName: firstNameController.text,
+                                          lName: lastNameController.text,
+                                          phoneNumber: phoneController.text,
+                                          email: emailController.text,
+                                          password: passwordController.text,
+                                          role: _selectedRole),
+                                    ),
+                                  );
+                                  break;
+                              }
+                            },
+                            child: const Text("NEXT")),
+                      ],
+                    ),
                   ],
                 ),
               ),

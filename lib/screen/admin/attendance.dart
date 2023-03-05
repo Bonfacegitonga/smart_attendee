@@ -9,6 +9,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
+import 'package:smart_attendee/auth/auth_service.dart';
+import 'package:smart_attendee/component/drawer.dart';
 import 'package:smart_attendee/constant/constant.dart';
 import 'package:smart_attendee/screen/admin/qr_code.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -37,6 +39,31 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
   User user = FirebaseAuth.instance.currentUser!;
   CollectionReference classesRef =
       FirebaseFirestore.instance.collection('Classes');
+  AuthService authService = AuthService();
+  String? fName;
+  String? sName;
+  String? role;
+
+  Future getUser() async {
+    User user = FirebaseAuth.instance.currentUser!;
+    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+        .collection('Users')
+        .doc(user.uid)
+        .get();
+    if (documentSnapshot.exists) {
+      setState(() {
+        fName = documentSnapshot.get('last_name');
+        sName = documentSnapshot.get('first_name');
+        role = documentSnapshot.get('role');
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    getUser();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +71,9 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
     final List<List<Map<String, dynamic>>> groupedAttendance = [];
     DateTime? currentDate;
     List<Map<String, dynamic>>? currentGroup;
+    final email = user.email;
+    final String myrole = role.toString();
+    final String fullNames = '$fName $sName ($myrole)';
 
     for (final Map<String, dynamic> attendance in widget.attendanceHistory) {
       final DateTime date = attendance['time'].toDate();
@@ -66,14 +96,12 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
 
     return Scaffold(
       floatingActionButtonLocation: ExpandableFab.location,
+      drawer: MyDrawer(
+        signOut: authService.logout,
+        email: email.toString(),
+        names: fullNames.toUpperCase(),
+      ),
       appBar: AppBar(
-        leading: IconButton(
-          //iconSize: 72,
-          icon: const Icon(Icons.menu),
-          onPressed: () {
-            // ...
-          },
-        ),
         title: Text(widget.title),
         backgroundColor: kPrimaryColor,
       ),

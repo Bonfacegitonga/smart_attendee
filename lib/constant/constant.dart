@@ -6,6 +6,7 @@ const primaryColor = LinearGradient(
   end: Alignment.bottomRight,
 );
 const kPrimaryColor = Colors.indigo;
+const oPrimaryColor = Color.fromARGB(255, 199, 84, 8);
 const selectedColor = LinearGradient(
   begin: Alignment.topLeft,
   end: Alignment.bottomRight,
