@@ -1,6 +1,8 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:smart_attendee/constant/constant.dart';
 
 class ResetPassword extends StatefulWidget {
   const ResetPassword({super.key});
@@ -25,15 +27,21 @@ class _ResetPasswordState extends State<ResetPassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.only(left: 50, right: 50, top: 40),
+      body: Center(
+        //padding: const EdgeInsets.only(left: 30, right: 30, top: 80),
         child: SingleChildScrollView(
+          padding: const EdgeInsets.only(left: 20, right: 20),
           child: Column(
             children: [
               const SizedBox(height: 15),
-              const Text(
-                "Recieve an email\nto reset your password",
-                textAlign: TextAlign.center,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                      "Enter your email, \nTo recieve an email to reset your password.",
+                      style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w400, fontSize: 16)),
+                ],
               ),
               const SizedBox(height: 15),
               Form(
@@ -44,9 +52,12 @@ class _ResetPasswordState extends State<ResetPassword> {
                       controller: emailController,
                       cursorColor: Colors.black,
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        contentPadding: EdgeInsets.only(top: 5),
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.all(7),
                         labelText: "Email",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       validator: (email) =>
@@ -56,6 +67,9 @@ class _ResetPasswordState extends State<ResetPassword> {
                     ),
                     const SizedBox(height: 30),
                     ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                oPrimaryColor)),
                         onPressed: sendEmail,
                         child: const Text("Reset Password")),
                   ],

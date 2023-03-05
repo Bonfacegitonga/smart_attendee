@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:smart_attendee/auth/sign_in/login.dart';
 import 'package:smart_attendee/auth/sign_up/student_signup.dart';
 import 'package:smart_attendee/auth/sign_up/Admin_sign_up.dart';
 import 'package:smart_attendee/auth/util.dart';
@@ -14,6 +15,8 @@ import 'package:smart_attendee/screen/student/student_home.dart';
 import '../../constant/constant.dart';
 import '../../screen/admin/admin_home.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../resetpassword/reset_password.dart';
 
 class SignUpPage extends StatefulWidget {
   //final Function() onClickedSignIn;
@@ -224,7 +227,13 @@ class _SignUpPageState extends State<SignUpPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const ResetPassword()));
+                          },
                           child: const Text(
                             "Forgot password",
                           ),
@@ -234,7 +243,12 @@ class _SignUpPageState extends State<SignUpPage> {
                           children: [
                             const Text("Have an account?"),
                             TextButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => const Login()));
+                                },
                                 child: const Text(
                                   "Login",
                                   style: TextStyle(color: Colors.blue),

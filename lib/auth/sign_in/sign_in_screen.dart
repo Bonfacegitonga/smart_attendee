@@ -1,10 +1,12 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:smart_attendee/auth/auth_service.dart';
 import 'package:smart_attendee/auth/resetpassword/reset_password.dart';
 import 'package:smart_attendee/auth/sign_up/sign_up_screen.dart';
 import 'package:smart_attendee/auth/util.dart';
+import 'package:smart_attendee/constant/constant.dart';
 import '../../main.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -35,21 +37,31 @@ class _SignInScreenState extends State<SignInScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.only(left: 50, right: 50, top: 40),
+        padding: const EdgeInsets.only(left: 30, right: 30, top: 80),
         child: SingleChildScrollView(
           child: Column(
             children: [
               const SizedBox(height: 15),
-              const Text(
+              Text(
                 "Welcome Back",
-                style: TextStyle(
-                  fontSize: 26,
-                ),
+                style: GoogleFonts.inder(
+                    color: kPrimaryColor,
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800),
                 textAlign: TextAlign.center,
               ),
-              const Text(
-                "Sign in with your email and password",
-                textAlign: TextAlign.center,
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    "Sign in with your email and password",
+                    style: GoogleFonts.inter(
+                        fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
+                ],
               ),
               const SizedBox(height: 15),
               Form(
@@ -109,38 +121,45 @@ class _SignInScreenState extends State<SignInScreen> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const ResetPassword()));
-                      },
-                      child: const Text(
-                        "Forgot password? ",
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    ElevatedButton(
-                        onPressed: signIn, child: const Text("login")),
-                    const SizedBox(height: 4),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          "No account? ",
-                          style: TextStyle(color: Colors.black),
-                        ),
                         TextButton(
                           onPressed: () {
                             Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const SignUpPage()));
+                                builder: (context) => const ResetPassword()));
                           },
-                          child: const Text('Sign Up',
-                              style: TextStyle(
-                                  decoration: TextDecoration.underline,
-                                  color: Colors.blue)),
+                          child: const Text(
+                            "Forgot password? ",
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            const Text(
+                              "No account? ",
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => const SignUpPage()));
+                              },
+                              child: const Text('Sign Up',
+                                  style: TextStyle(
+                                      decoration: TextDecoration.underline,
+                                      color: Colors.blue)),
+                            )
+                          ],
                         )
                       ],
-                    )
+                    ),
+                    const SizedBox(height: 2),
+                    ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                oPrimaryColor)),
+                        onPressed: signIn,
+                        child: const Text("LOGIN")),
                   ],
                 ),
               ),
@@ -163,8 +182,23 @@ class _SignInScreenState extends State<SignInScreen> {
           email: emailController.text.trim(),
           password: passwordController.text.trim());
     } on FirebaseAuthException catch (e) {
-      print(e);
-      //err.showSnackBar(e.message);
+      if (e.code == 'user-not-found') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('No user found for that email.'),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      } else if (e.code == 'wrong-password') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Wrong password'),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
     }
     navigatorKey.currentState!.popUntil((route) => route.isFirst);
   }
