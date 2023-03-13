@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 
+import '../../auth/auth_service.dart';
 import '../../auth/sign_in/login.dart';
+import '../../component/drawer.dart';
 import '../../constant/constant.dart';
 
 class QRScannerPage extends StatefulWidget {
@@ -15,8 +19,12 @@ class QRScannerPage extends StatefulWidget {
 class _QRScannerPageState extends State<QRScannerPage> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   User user = FirebaseAuth.instance.currentUser!;
+  AuthService authService = AuthService();
   String? fName;
   String? sName;
+  String? role;
+  List<dynamic>? unitCourse;
+  String? myCourse;
   String? fullNames;
   String? registrationNumber;
   String uid = "";
@@ -51,6 +59,8 @@ class _QRScannerPageState extends State<QRScannerPage> {
         fName = documentSnapshot.get('last_name');
         sName = documentSnapshot.get('first_name');
         registrationNumber = documentSnapshot.get('Id');
+        role = documentSnapshot.get('role');
+        myCourse = documentSnapshot.get('course');
         fullNames = '$fName $sName';
         studentInfo = {
           "Names": fullNames,
@@ -62,25 +72,57 @@ class _QRScannerPageState extends State<QRScannerPage> {
     //await addClasses();
   }
 
-  Future<void> getClassDocument() async {
+  Future getClassDocument() async {
     final classDoc =
         await FirebaseFirestore.instance.collection("Classes").doc(uid).get();
-    if (classDoc.exists) {
-      setState(() {
-        courseInfo = {
-          'unitName': classDoc.get('unit_name'),
-          'unitCode': classDoc.get('unit_code'),
-          'time': DateTime.now()
-        };
-      });
+    try {
+      if (classDoc.exists) {
+        setState(() {
+          unitCourse = classDoc.get("classes");
+          courseInfo = {
+            'unitName': classDoc.get('unit_name'),
+            'unitCode': classDoc.get('unit_code'),
+            'time': DateTime.now()
+          };
+        });
+      }
+    } on FirebaseException catch (e) {
+      if (e.code == 'cloud_firestore/not-found') {
+        showErr('Class not found');
+      }
     }
+  }
+
+  showErr(String err) {
+    return ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(err),
+        duration: const Duration(seconds: 5),
+      ),
+    );
+  }
+
+  successSnack() {
+    return ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        backgroundColor: Colors.green,
+        content: Text('Class attended successfully'),
+        duration: Duration(seconds: 5),
+      ),
+    );
   }
 
   addAttendance() async {
     await getClassDocument();
-    FirebaseFirestore.instance.collection('Users').doc(user.uid).update({
-      "history": FieldValue.arrayUnion([courseInfo])
-    });
+    if (unitCourse!.contains(myCourse)) {
+      FirebaseFirestore.instance.collection('Users').doc(user.uid).update({
+        "history": FieldValue.arrayUnion([courseInfo])
+      });
+      successSnack();
+    } else {
+      showErr('You are not enrolled to this unit');
+    }
   }
 
   addClasses() async {
@@ -107,16 +149,16 @@ class _QRScannerPageState extends State<QRScannerPage> {
 
   @override
   Widget build(BuildContext context) {
+    String nameRole = '$fullNames ($role)';
     return Scaffold(
+        drawer: MyDrawer(
+          names: nameRole.toString().toUpperCase(),
+          email: user.email.toString(),
+          signOut: authService.logout,
+        ),
         appBar: AppBar(
-          title: const Text("QR Scanner"),
-          actions: [
-            IconButton(
-                onPressed: () {
-                  logout(context);
-                },
-                icon: const Icon(Icons.logout))
-          ],
+          backgroundColor: kPrimaryColor,
+          title: const Text("Student"),
         ),
         body: Padding(
           padding: const EdgeInsets.all(9),
@@ -141,14 +183,53 @@ class _QRScannerPageState extends State<QRScannerPage> {
               }
 
               List<dynamic> history = snapshot.data!['history'];
+              if (history.isEmpty) {
+                return const Center(child: Text('No attendance made yet'));
+              }
               return ListView.builder(
                   itemCount: history.length,
                   itemBuilder: (BuildContext context, int index) {
                     Map<String, dynamic> hist = history[index];
 
-                    return ListTile(
-                      title: Text(hist['unitName'].toString()),
-                      subtitle: Text(hist['unitCode'].toString()),
+                    return Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              hist['unitName'].toUpperCase(),
+                              style: GoogleFonts.inconsolata(
+                                  fontWeight: FontWeight.w800, fontSize: 18),
+                            ),
+                            Text(
+                                DateFormat.yMMMMd('en_US')
+                                    .format(hist['time'].toDate()),
+                                style: GoogleFonts.inter(
+                                    color:
+                                        const Color.fromARGB(255, 199, 84, 8)))
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 7,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              hist['unitCode'],
+                              style: GoogleFonts.inconsolata(
+                                  fontWeight: FontWeight.w500, fontSize: 16),
+                            ),
+                            Text(
+                              DateFormat('hh:mm a')
+                                  .format(hist['time'].toDate()),
+                            )
+                          ],
+                        ),
+                        const Divider(
+                          thickness: 1.5,
+                        )
+                      ],
                     );
                   });
             },
@@ -160,20 +241,6 @@ class _QRScannerPageState extends State<QRScannerPage> {
             scanQR();
           },
           child: const Icon(Icons.qr_code_scanner_outlined),
-        ));
-  }
-
-  Future<void> logout(BuildContext context) async {
-    const CircularProgressIndicator();
-    await FirebaseAuth.instance.signOut();
-    login();
-  }
-
-  login() {
-    Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const Login(),
         ));
   }
 

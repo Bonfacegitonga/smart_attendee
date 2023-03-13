@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:multiselect/multiselect.dart';
 import 'package:smart_attendee/auth/auth_service.dart';
 import 'package:smart_attendee/constant/constant.dart';
 import 'package:smart_attendee/firebase/firebase_service.dart';
@@ -28,11 +29,13 @@ class _AdminHomePageState extends State<AdminHomePage> {
   final TextEditingController _unitCode = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   UserService userService = UserService();
+  List<String> selectedCourse = [];
   bool isSelectionMode = false;
   List<String> selectedIds = [];
   bool isAllSelected = false;
   bool selectAll = false;
   List? classesData;
+  List? classes;
   String? fName;
   String? sName;
   String? role;
@@ -257,7 +260,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
         builder: (BuildContext context) {
           return AlertDialog(
             content: SizedBox(
-              height: 230,
+              height: 300,
               child: Form(
                 key: _formKey,
                 child: (Column(children: [
@@ -298,6 +301,20 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   const SizedBox(
                     height: 10,
                   ),
+                  DropDownMultiSelect(
+                    decoration: const InputDecoration(
+                      isDense: true,
+                    ),
+                    onChanged: (List<String> x) {
+                      setState(() {
+                        selectedCourse = x;
+                      });
+                    },
+                    options: SchoolList.allCourses,
+                    selectedValues: selectedCourse,
+                    whenEmpty: 'Select Something',
+                    //hint: const Text("Select programme"),
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -311,12 +328,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
                       ),
                       ElevatedButton(
                           onPressed: () {
-                            // setState(() {
-                            //   unit = {
-                            //     "name": _unitName.text,
-                            //     "code": _unitCode.text
-                            //   };
-                            // });
                             addClassess(_unitName.text.toUpperCase(),
                                 _unitCode.text.toUpperCase());
                           },
@@ -351,6 +362,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
       'lecture_id': user!.uid,
       'unit_name': unitName,
       'unit_code': code,
+      'classes': selectedCourse,
     });
   }
 

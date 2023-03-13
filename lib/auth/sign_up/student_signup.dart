@@ -336,8 +336,9 @@ class _StudentSignUPState extends State<StudentSignUP> {
       'phone': phoneNumber,
       'Id': id,
       'school': school,
-      'hitory': [],
+      'history': [],
       'department': department,
+      'course': course,
     });
   }
 }
