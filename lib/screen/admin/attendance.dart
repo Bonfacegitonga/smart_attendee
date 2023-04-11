@@ -14,6 +14,9 @@ import 'package:smart_attendee/component/drawer.dart';
 import 'package:smart_attendee/constant/constant.dart';
 import 'package:smart_attendee/screen/admin/qr_code.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:sticky_grouped_list/sticky_grouped_list.dart';
+
+import '../../model/admin.dart';
 
 class AttendanceHistory extends StatefulWidget {
   final String cName;
@@ -43,6 +46,7 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
   String? fName;
   String? sName;
   String? role;
+  List<Attendance> classHistory = [];
 
   Future getUser() async {
     User user = FirebaseAuth.instance.currentUser!;
@@ -62,37 +66,36 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
   @override
   void initState() {
     getUser();
+    fetchAttendance();
     super.initState();
+  }
+
+  void fetchAttendance() {
+    FirebaseFirestore.instance
+        .collection('Classes')
+        .doc(widget.documentLink)
+        .collection('history')
+        .snapshots()
+        .listen((snapshot) {
+      // Create a list of Message objects from the Firestore documents.
+      List<Attendance> updated = [];
+      for (var doc in snapshot.docs) {
+        Attendance history = Attendance.fromFirestore(doc);
+        updated.add(history);
+      }
+
+      // Update the app state with the new list of messages.
+      setState(() {
+        classHistory = updated;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    //widget.attendanceHistory.sort((a, b) => a.time.compareTo(b.time));
-    final List<List<Map<String, dynamic>>> groupedAttendance = [];
-    DateTime? currentDate;
-    List<Map<String, dynamic>>? currentGroup;
     final email = user.email;
     final String myrole = role.toString();
     final String fullNames = '$fName $sName ($myrole)';
-
-    for (final Map<String, dynamic> attendance in widget.attendanceHistory) {
-      final DateTime date = attendance['time'].toDate();
-
-      if (currentDate == null || date.difference(currentDate).inDays != 0) {
-        if (currentGroup != null) {
-          groupedAttendance.add(currentGroup);
-        }
-
-        currentDate = date;
-        currentGroup = [attendance];
-      } else {
-        currentGroup!.add(attendance);
-      }
-    }
-
-    if (currentGroup != null) {
-      groupedAttendance.add(currentGroup);
-    }
 
     return Scaffold(
       floatingActionButtonLocation: ExpandableFab.location,
@@ -107,75 +110,22 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(10),
-        child: ListView.builder(
-            itemCount: groupedAttendance.length,
-            itemBuilder: (BuildContext context, int index) {
-              ///Map<String, dynamic> recordData = widget.attendanceHistory[index];
-              final List<Map<String, dynamic>> attendanceList =
-                  groupedAttendance[index];
-              final String date = DateFormat.yMMMMd('en_US')
-                  .format(attendanceList[index]['time'].toDate());
-              final List<Widget> children = [];
-
-              for (final Map<String, dynamic> attendance
-                  in attendanceList.reversed) {
-                children.add(Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            attendance['Names'].toUpperCase(),
-                            style: GoogleFonts.inconsolata(
-                                fontWeight: FontWeight.w800, fontSize: 18),
-                          ),
-                          Text(
-                              DateFormat.yMMMMd('en_US')
-                                  .format(attendance['time'].toDate()),
-                              style: GoogleFonts.inter(
-                                  color: const Color.fromARGB(255, 199, 84, 8)))
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 7,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            attendance['reg_no'],
-                            style: GoogleFonts.inconsolata(
-                                fontWeight: FontWeight.w500, fontSize: 16),
-                          ),
-                          Text(
-                            DateFormat('hh:mm a')
-                                .format(attendance['time'].toDate()),
-                          )
-                        ],
-                      ),
-                      const Divider(
-                        thickness: 1.5,
-                      )
-                    ]));
-              }
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  // Text(date,
-                  //     style: GoogleFonts.inter(
-                  //         color: const Color.fromARGB(255, 199, 84, 8),
-                  //         fontSize: 16,
-                  //         fontWeight: FontWeight.w600)),
-                  // const SizedBox(height: 10),
-                  ...children,
-                  const SizedBox(height: 16),
-                ],
-              );
-            }),
+        child: StickyGroupedListView<Attendance, DateTime>(
+          elements: classHistory,
+          order: StickyGroupedListOrder.DESC,
+          groupBy: (Attendance element) => DateTime(
+            element.checkedInAt.year,
+            element.checkedInAt.month,
+            element.checkedInAt.day,
+          ),
+          groupComparator: (DateTime value1, DateTime value2) =>
+              value1.compareTo(value2),
+          itemComparator: (Attendance element1, Attendance element2) =>
+              element1.checkedInAt.compareTo(element2.checkedInAt),
+          floatingHeader: true,
+          groupSeparatorBuilder: _getGroupSeparator,
+          itemBuilder: _getItem,
+        ),
       ),
       floatingActionButton: ExpandableFab(
         backgroundColor: kPrimaryColor,
@@ -212,6 +162,54 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
     );
   }
 
+  Widget _getItem(BuildContext ctx, Attendance info) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "${info.firstName.toUpperCase()} ${info.lastName.toUpperCase()}",
+              style: GoogleFonts.inconsolata(
+                  fontWeight: FontWeight.w800, fontSize: 18),
+            ),
+            Text(
+              DateFormat('hh:mm a').format(info.checkedInAt),
+            )
+          ],
+        ),
+        const SizedBox(
+          height: 7,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              info.regNo,
+              style: GoogleFonts.inconsolata(
+                  fontWeight: FontWeight.w500, fontSize: 16),
+            ),
+          ],
+        ),
+        const Divider(
+          thickness: 1.5,
+        )
+      ],
+    );
+  }
+
+  Widget _getGroupSeparator(Attendance element) {
+    return Chip(
+      label: Text(
+        formatDateTime(element.checkedInAt),
+        //DateFormat.yMMMMd('en_US').format(element.createdAt),
+        style:
+            const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+      ),
+      backgroundColor: oPrimaryColor,
+    );
+  }
+
   Future<void> _generatePdf() async {
     // Create a new PDF document
     final pdf = pw.Document();
@@ -227,13 +225,14 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
             pw.Table.fromTextArray(
                 data: [
                   ['Date', 'Name', 'Registration No.', 'Time'],
-                  ...widget.attendanceHistory.map((attendance) {
+                  ...classHistory.map((attendance) {
                     final date = DateFormat.yMMMMd('en_US')
-                        .format(attendance['time'].toDate());
-                    final name = attendance['Names'].toUpperCase();
-                    final regNo = attendance['reg_no'];
-                    final time = DateFormat('hh:mm a')
-                        .format(attendance['time'].toDate());
+                        .format(attendance.checkedInAt);
+                    final name =
+                        "${attendance.firstName.toUpperCase()} ${attendance.lastName.toUpperCase()}";
+                    final regNo = attendance.regNo;
+                    final time =
+                        DateFormat('hh:mm a').format(attendance.checkedInAt);
                     return [date, name, regNo, time];
                   }).toList(),
                 ],
@@ -257,5 +256,23 @@ class _AttendanceHistoryState extends State<AttendanceHistory> {
 
     // Open the PDF document with the default PDF viewer app
     await OpenFile.open(file.path);
+  }
+
+  String formatDateTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final yesterday = DateTime(now.year, now.month, now.day - 1);
+    final today = DateTime(now.year, now.month, now.day);
+
+    if (dateTime.year == now.year &&
+        dateTime.month == now.month &&
+        dateTime.day == today.day) {
+      return 'Today';
+    } else if (dateTime.year == now.year &&
+        dateTime.month == now.month &&
+        dateTime.day == yesterday.day) {
+      return 'Yesterday';
+    } else {
+      return DateFormat('MMM dd, yyyy').format(dateTime);
+    }
   }
 }

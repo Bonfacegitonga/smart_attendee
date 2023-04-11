@@ -189,6 +189,11 @@ class _AdminHomePageState extends State<AdminHomePage> {
                       return {'id': id, ...data};
                     }).toList();
 
+                    if (classesData!.isEmpty) {
+                      return const Center(
+                          child: Text('No classes created yet..'));
+                    }
+
                     return Expanded(
                       child: GridView.builder(
                           gridDelegate:
@@ -221,17 +226,20 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                 });
                               },
                               onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => AttendanceHistory(
-                                              attendanceHistory:
-                                                  attendanceHistory ?? [],
-                                              title: name,
-                                              documentLink: id,
-                                              cName: name,
-                                              cCode: code,
-                                            )));
+                                isSelected
+                                    ? selectedIds.add(id)
+                                    : Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                AttendanceHistory(
+                                                  attendanceHistory:
+                                                      attendanceHistory ?? [],
+                                                  title: name,
+                                                  documentLink: id,
+                                                  cName: name,
+                                                  cCode: code,
+                                                )));
                               },
                               child: BeautifulContainer(
                                 headline: name,
@@ -301,19 +309,29 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   const SizedBox(
                     height: 10,
                   ),
-                  DropDownMultiSelect(
-                    decoration: const InputDecoration(
-                      isDense: true,
+                  Expanded(
+                    child: DropDownMultiSelect(
+                      checkboxColor: oPrimaryColor,
+                      decoration: InputDecoration(
+                        helperMaxLines: 5,
+                        //constraints: const BoxConstraints.expand(),
+                        contentPadding: EdgeInsets.all(10),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        //hintText: "Select programme(s)",
+                        isCollapsed: true,
+                      ),
+                      onChanged: (List<String> x) {
+                        setState(() {
+                          selectedCourse = x;
+                        });
+                      },
+                      options: SchoolList.allCourses,
+                      selectedValues: selectedCourse,
+                      whenEmpty: "Select programme(s)",
+                      //hint: const Text("Select programme"),
                     ),
-                    onChanged: (List<String> x) {
-                      setState(() {
-                        selectedCourse = x;
-                      });
-                    },
-                    options: SchoolList.allCourses,
-                    selectedValues: selectedCourse,
-                    whenEmpty: 'Select Something',
-                    //hint: const Text("Select programme"),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

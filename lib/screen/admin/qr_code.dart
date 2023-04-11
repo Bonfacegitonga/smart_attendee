@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:barcode_widget/barcode_widget.dart';
@@ -35,6 +36,13 @@ class _QrCodeShareState extends State<QrCodeShare> {
 
   @override
   Widget build(BuildContext context) {
+    final Map<String, dynamic> qrData = {
+      'documentId': widget.classLink,
+      'timestamp': DateTime.now().millisecondsSinceEpoch,
+    };
+
+    String qrDataString = jsonEncode(qrData);
+
     return Screenshot(
       controller: controller,
       child: Scaffold(
@@ -54,7 +62,36 @@ class _QrCodeShareState extends State<QrCodeShare> {
               const SizedBox(
                 height: 50,
               ),
-              qrCode(),
+              //qrCode(),
+              Text(
+                widget.courseName,
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(
+                height: 6,
+              ),
+              Text(
+                widget.courseCode,
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 19,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              BarcodeWidget(
+                data: qrDataString,
+                barcode: Barcode.qrCode(),
+                color: Colors.black,
+                width: 300,
+                height: 300,
+              ),
               const SizedBox(
                 height: 15,
               ),
@@ -104,41 +141,41 @@ class _QrCodeShareState extends State<QrCodeShare> {
     );
   }
 
-  Widget qrCode() {
-    return Column(
-      children: [
-        Text(
-          widget.courseName,
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-            color: Colors.black,
-          ),
-        ),
-        const SizedBox(
-          height: 6,
-        ),
-        Text(
-          widget.courseCode,
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.w600,
-            fontSize: 19,
-            color: Colors.black,
-          ),
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        BarcodeWidget(
-          data: widget.classLink,
-          barcode: Barcode.qrCode(),
-          color: Colors.black,
-          width: 300,
-          height: 300,
-        )
-      ],
-    );
-  }
+  // Widget qrCode() {
+  //   return Column(
+  //     children: [
+  //       Text(
+  //         widget.courseName,
+  //         style: GoogleFonts.inter(
+  //           fontWeight: FontWeight.bold,
+  //           fontSize: 24,
+  //           color: Colors.black,
+  //         ),
+  //       ),
+  //       const SizedBox(
+  //         height: 6,
+  //       ),
+  //       Text(
+  //         widget.courseCode,
+  //         style: GoogleFonts.inter(
+  //           fontWeight: FontWeight.w600,
+  //           fontSize: 19,
+  //           color: Colors.black,
+  //         ),
+  //       ),
+  //       const SizedBox(
+  //         height: 10,
+  //       ),
+  //       BarcodeWidget(
+  //         data: qrDataString,
+  //         barcode: Barcode.qrCode(),
+  //         color: Colors.black,
+  //         width: 300,
+  //         height: 300,
+  //       )
+  //     ],
+  //   );
+  // }
 
   void _showToast(BuildContext context) {
     final scaffold = ScaffoldMessenger.of(context);

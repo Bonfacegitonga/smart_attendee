@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -5,11 +7,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:smart_attendee/model/admin.dart';
+import 'package:sticky_grouped_list/sticky_grouped_list.dart';
 
 import '../../auth/auth_service.dart';
 import '../../auth/sign_in/login.dart';
 import '../../component/drawer.dart';
 import '../../constant/constant.dart';
+import '../../model/StudentClasses.dart';
 
 class QRScannerPage extends StatefulWidget {
   @override
@@ -20,20 +25,24 @@ class _QRScannerPageState extends State<QRScannerPage> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   User user = FirebaseAuth.instance.currentUser!;
   AuthService authService = AuthService();
-  String? fName;
-  String? sName;
+  String fName = "";
+  String sName = "";
   String? role;
   List<dynamic>? unitCourse;
   String? myCourse;
   String? fullNames;
-  String? registrationNumber;
+  String registrationNumber = "";
   String uid = "";
   String courseName = "";
   String couseCode = "";
-  Timestamp? timestamp;
+  DateTime time = DateTime.now();
   Map? studentInfo;
   Map? courseInfo;
+  Map<String, dynamic> qrData = {};
+  int timestamp = 0;
+  List<StudentClasses> myClasses = [];
 
+//scan qr code
   Future<void> scanQR() async {
     String barcodeScanRes;
 
@@ -43,12 +52,15 @@ class _QRScannerPageState extends State<QRScannerPage> {
     if (!mounted) return;
 
     setState(() {
-      uid = barcodeScanRes;
+      qrData = jsonDecode(barcodeScanRes);
+      uid = qrData['documentId'];
+      timestamp = qrData['timestamp'];
     });
 
     addClasses();
   }
 
+//set user details
   Future getUser() async {
     DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
         .collection('Users')
@@ -72,6 +84,7 @@ class _QRScannerPageState extends State<QRScannerPage> {
     //await addClasses();
   }
 
+// qrcode id dicument
   Future getClassDocument() async {
     final classDoc =
         await FirebaseFirestore.instance.collection("Classes").doc(uid).get();
@@ -79,11 +92,14 @@ class _QRScannerPageState extends State<QRScannerPage> {
       if (classDoc.exists) {
         setState(() {
           unitCourse = classDoc.get("classes");
-          courseInfo = {
-            'unitName': classDoc.get('unit_name'),
-            'unitCode': classDoc.get('unit_code'),
-            'time': DateTime.now()
-          };
+          courseName = classDoc.get('unit_name');
+          couseCode = classDoc.get('unit_code');
+          time = DateTime.now();
+          // courseInfo = {
+          //   'unitName': classDoc.get('unit_name'),
+          //   'unitCode': classDoc.get('unit_code'),
+          //   'time': DateTime.now()
+          // };
         });
       }
     } on FirebaseException catch (e) {
@@ -93,6 +109,7 @@ class _QRScannerPageState extends State<QRScannerPage> {
     }
   }
 
+  //snackbar to show error
   showErr(String err) {
     return ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -103,6 +120,7 @@ class _QRScannerPageState extends State<QRScannerPage> {
     );
   }
 
+//SnackBar to display success scanning
   successSnack() {
     return ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -113,37 +131,72 @@ class _QRScannerPageState extends State<QRScannerPage> {
     );
   }
 
+//send class details to firebase
   addAttendance() async {
+    final bool isValid =
+        DateTime.now().millisecondsSinceEpoch - timestamp <= 20 * 60 * 1000;
+
     await getClassDocument();
+    StudentClasses myClasse = StudentClasses(
+        courseCode: couseCode, courseName: courseName, createdAt: time);
     if (unitCourse!.contains(myCourse)) {
-      FirebaseFirestore.instance.collection('Users').doc(user.uid).update({
-        "history": FieldValue.arrayUnion([courseInfo])
-      });
-      successSnack();
+      if (isValid) {
+        FirebaseFirestore.instance
+            .collection('Users')
+            .doc(user.uid)
+            .collection('history')
+            .add(myClasse.toFirestore());
+        successSnack();
+      } else {
+        showErr('Qr code has expired');
+      }
     } else {
       showErr('You are not enrolled to this unit');
     }
   }
 
+//update class attendance history
   addClasses() async {
-    FirebaseFirestore.instance.collection("Classes").doc(uid).update({
-      "student_attendance": FieldValue.arrayUnion([studentInfo])
-    }).then((_) => addAttendance());
+    //getUser();
+    Attendance studentDetail = Attendance(
+        firstName: fName,
+        lastName: sName,
+        checkedInAt: DateTime.now(),
+        regNo: registrationNumber);
+
+    FirebaseFirestore.instance
+        .collection("Classes")
+        .doc(uid)
+        .collection('history')
+        .add(studentDetail.toFirestore())
+        .then((_) => addAttendance());
   }
 
-  Future<Map<String, dynamic>> fetchStudentData(String documentId) async {
-    final DocumentSnapshot<Map<String, dynamic>> snapshot =
-        await FirebaseFirestore.instance
-            .collection('students')
-            .doc(documentId)
-            .get();
+  void fetchStudentClasses() {
+    FirebaseFirestore.instance
+        .collection('Users')
+        .doc(user.uid)
+        .collection('history')
+        .snapshots()
+        .listen((snapshot) {
+      // Create a list of Message objects from the Firestore documents.
+      List<StudentClasses> updatedMessages = [];
+      for (var doc in snapshot.docs) {
+        StudentClasses message = StudentClasses.fromFirestore(doc);
+        updatedMessages.add(message);
+      }
 
-    return snapshot.data()!['student'] as Map<String, dynamic>;
+      // Update the app state with the new list of messages.
+      setState(() {
+        myClasses = updatedMessages;
+      });
+    });
   }
 
   @override
   void initState() {
     getUser();
+    fetchStudentClasses();
     super.initState();
   }
 
@@ -158,81 +211,27 @@ class _QRScannerPageState extends State<QRScannerPage> {
         ),
         appBar: AppBar(
           backgroundColor: kPrimaryColor,
-          title: const Text("Student"),
+          title: const Text("Attendance history"),
+          centerTitle: true,
         ),
         body: Padding(
           padding: const EdgeInsets.all(9),
-          child: StreamBuilder(
-            stream: FirebaseFirestore.instance
-                .collection('Users')
-                .doc(user.uid)
-                .snapshots(),
-            builder: (BuildContext context,
-                AsyncSnapshot<DocumentSnapshot> snapshot) {
-              if (snapshot.hasError) {
-                return const Center(
-                  child: Text(
-                    "error!!",
-                    style: TextStyle(color: Colors.red, fontSize: 20),
-                  ),
-                );
-              }
-
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: Text('Loading...'));
-              }
-
-              List<dynamic> history = snapshot.data!['history'];
-              if (history.isEmpty) {
-                return const Center(child: Text('No attendance made yet'));
-              }
-              return ListView.builder(
-                  itemCount: history.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    Map<String, dynamic> hist = history[index];
-
-                    return Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              hist['unitName'].toUpperCase(),
-                              style: GoogleFonts.inconsolata(
-                                  fontWeight: FontWeight.w800, fontSize: 18),
-                            ),
-                            Text(
-                                DateFormat.yMMMMd('en_US')
-                                    .format(hist['time'].toDate()),
-                                style: GoogleFonts.inter(
-                                    color:
-                                        const Color.fromARGB(255, 199, 84, 8)))
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 7,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              hist['unitCode'],
-                              style: GoogleFonts.inconsolata(
-                                  fontWeight: FontWeight.w500, fontSize: 16),
-                            ),
-                            Text(
-                              DateFormat('hh:mm a')
-                                  .format(hist['time'].toDate()),
-                            )
-                          ],
-                        ),
-                        const Divider(
-                          thickness: 1.5,
-                        )
-                      ],
-                    );
-                  });
-            },
+          child: StickyGroupedListView<StudentClasses, DateTime>(
+            elements: myClasses,
+            order: StickyGroupedListOrder.DESC,
+            groupBy: (StudentClasses element) => DateTime(
+              element.createdAt.year,
+              element.createdAt.month,
+              element.createdAt.day,
+            ),
+            groupComparator: (DateTime value1, DateTime value2) =>
+                value1.compareTo(value2),
+            itemComparator:
+                (StudentClasses element1, StudentClasses element2) =>
+                    element1.createdAt.compareTo(element2.createdAt),
+            floatingHeader: true,
+            groupSeparatorBuilder: _getGroupSeparator,
+            itemBuilder: _getItem,
           ),
         ),
         floatingActionButton: FloatingActionButton(
@@ -244,28 +243,69 @@ class _QRScannerPageState extends State<QRScannerPage> {
         ));
   }
 
-  Future<void> _getUserData() async {
-    final classDoc =
-        await FirebaseFirestore.instance.collection("users").doc(uid).get();
-    if (classDoc.exists) {
-      setState(() {});
+  Widget _getGroupSeparator(StudentClasses element) {
+    return Chip(
+      label: Text(
+        formatDateTime(element.createdAt),
+        //DateFormat.yMMMMd('en_US').format(element.createdAt),
+        style:
+            const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+      ),
+      backgroundColor: oPrimaryColor,
+    );
+  }
+
+  Widget _getItem(BuildContext ctx, StudentClasses units) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              units.courseName.toUpperCase(),
+              style: GoogleFonts.inconsolata(
+                  fontWeight: FontWeight.w800, fontSize: 18),
+            ),
+            Text(
+              DateFormat('hh:mm a').format(units.createdAt),
+            )
+          ],
+        ),
+        const SizedBox(
+          height: 7,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              units.courseCode,
+              style: GoogleFonts.inconsolata(
+                  fontWeight: FontWeight.w500, fontSize: 16),
+            ),
+          ],
+        ),
+        const Divider(
+          thickness: 1.5,
+        )
+      ],
+    );
+  }
+
+  String formatDateTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final yesterday = DateTime(now.year, now.month, now.day - 1);
+    final today = DateTime(now.year, now.month, now.day);
+
+    if (dateTime.year == now.year &&
+        dateTime.month == now.month &&
+        dateTime.day == today.day) {
+      return 'Today';
+    } else if (dateTime.year == now.year &&
+        dateTime.month == now.month &&
+        dateTime.day == yesterday.day) {
+      return 'Yesterday';
+    } else {
+      return DateFormat('MMM dd, yyyy').format(dateTime);
     }
   }
-}
-
-class Student {
-  final String names;
-  final String regNo;
-
-  Student({required this.names, required this.regNo});
-}
-
-Future<List<Student>> fetchStudentList() async {
-  final QuerySnapshot<Map<String, dynamic>> snapshot =
-      await FirebaseFirestore.instance.collection('students').get();
-
-  return snapshot.docs
-      .map((doc) =>
-          Student(names: doc.data()['Names'], regNo: doc.data()['reg_no']))
-      .toList();
 }

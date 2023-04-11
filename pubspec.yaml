@@ -60,6 +60,7 @@ dependencies:
     git:
       url: https://github.com/CA2puntosV/multiselect.git
       ref: text_items_customization
+  sticky_grouped_list: ^3.1.0
 
 
 
