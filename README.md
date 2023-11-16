@@ -1,6 +1,6 @@
-# smart_attendee
+# smart attendee
 
-Welcome to the Class Attendance Manager App! This Flutter application is designed to streamline the process of taking and managing class attendance. Students can easily sign in by scanning QR codes provided by the course lecturer, and lecturers can efficiently track attendance and generate reports.
+Class Attendance  App is a Flutter application that is designed to streamline the process of taking and managing class attendance. Students can easily sign in by scanning QR codes provided by the course lecturer, and lecturers can efficiently track attendance and generate reports.
 ## Screenshots
 ![2](https://github.com/Bonfacegitonga/smart_attendee/assets/65446155/f59c5399-3fcb-4d2f-a546-a5da19c46b93)
 ![Untitled design](https://github.com/Bonfacegitonga/smart_attendee/assets/65446155/43a55517-f4fd-4ff7-b428-99d6eef69ee6)
