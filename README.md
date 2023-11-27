@@ -20,7 +20,7 @@ Class Attendance  App is a Flutter application that is designed to streamline th
 - **QR Code Generation:** Generate unique QR codes for each class for easy student sign-in.
 
 ## Getting Started
-[apk](https://github.com/Bonfacegitonga/release)
+##[apk](https://github.com/Bonfacegitonga/release)
 
 1. **Clone the repository:**
 
